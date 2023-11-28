@@ -58,8 +58,8 @@ done
 UNINSTALL_XUI(){
 	printf 'y\n' | x-ui uninstall
 	rm -rf "/etc/x-ui/" "/usr/local/x-ui/" "/usr/bin/x-ui/"
-	$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx
-	$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx
+	$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx haproxy
+	$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx haproxy
 	$Pak -y autoremove
 	$Pak -y autoclean
 	rm -rf "/var/www/html/" "/etc/nginx/" "/usr/share/nginx/" 
@@ -277,7 +277,10 @@ if systemctl is-active --quiet x-ui && [[ $XUIPORT -eq $PORT ]]; then clear
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	certbot certificates | grep -i 'Path:\|Domains:\|Expiry Date:'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+	msg_inf "\nTo use the VLESS+reality, create the vless.${MainDomain} in DNS-only mode        "
+	msg_inf "To use the TROJAN+reality, create the trojan.${MainDomain} in DNS-only mode        "
 	msg_inf "\nX-UI Admin Panel: https://${domain}/${RNDSTR}\n"
+	msg_inf " Login  | Password"
 	sqlite3 -batch $XUIDB 'SELECT "username","password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 else
