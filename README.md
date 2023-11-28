@@ -1,14 +1,31 @@
-# x-ui
-
-![](https://img.shields.io/github/v/release/alireza0/x-ui.svg)
-![](https://img.shields.io/docker/pulls/alireza7/x-ui.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/alireza0/x-ui)](https://goreportcard.com/report/github.com/alireza0/x-ui)
-[![Downloads](https://img.shields.io/github/downloads/alireza0/x-ui/total.svg)](https://img.shields.io/github/downloads/alireza0/x-ui/total.svg)
 [![License](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+![](https://img.shields.io/github/v/release/EarlVadim/x-ui.svg)
+[![Downloads](https://img.shields.io/github/downloads/EarlVadim/x-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/x-ui/total.svg)
 
 > **Disclaimer: This project is only for personal learning and communication, please do not use it for illegal purposes, please do not use it in a production environment**
 
+> **This project is a compilation of forks of two projects by
+- x-ui [Alireza Ahmadi](https://github.com/alireza0)
+- x-ui-pro [Xue Xianliang](https://github.com/GFW4Fun)
+
+
+# X-UI-PRO (x-ui + nginx) :octocat:	:open_file_folder:	
+
+- Auto Installation (lightweight)
+- Special for Cloudflare CDN
+- Auto SSL renewal (cronjob)
+- Auto-reload nginx and x-ui
+- Multi-domain and sub-domain support
+- Handle WebSocket and GRPC via nginx.
+- Multi-user and config via port 443
+- Access to x-ui panel via nginx
+- Compatible with Debian 10+ and Ubuntu 20+
+- More security and low detection with nginx
+- Nginx with anti-exploit, keepalive=on, cache=off
+- Random 150+ fake template!
+
 xray panel supporting multi-protocol, **Multi-lang (English,Farsi,Chinese,Russian)**
+
 
 | Features                             |      Enable?       |
 | ------------------------------------ | :----------------: |
@@ -22,78 +39,72 @@ xray panel supporting multi-protocol, **Multi-lang (English,Farsi,Chinese,Russia
 | Backup database using Telegram BOT   | :heavy_check_mark: |
 | Subscription link + userInfo         | :heavy_check_mark: |
 | Calculate expire date on first usage | :heavy_check_mark: |
+| Cloudflare CDN support               | :heavy_check_mark: |
 
 **If you think this project is helpful to you, you may wish to give a** :star2:
-
 **Buy Me a Coffee :**
 
-- Tron USDT (TRC20): `TYTq73Gj6dJ67qe58JVPD9zpjW2cc9XgVz`
-- Tezos (XTZ): tz2Wnh2SsY1eezXrcLChu6idWpgdHzUFQcts
+- Tron USDT (TRC20): `TZFsoK8H82fRcmo4TpGFmKAc57fvcRpMBc`
+- Ethereum (ETH): `0xD6ABe71CC33E49a3A2138B77E838929D7b7bFD3b`
 
-# Install & Upgrade to latest version
+--------------------------------------------------------------------------------------
 
-```sh
-bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh)
+# Install X-UI-PRO
+
+
+## Install X-UI+nging :heavy_plus_sign:
+```
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -install yes
+```
+If you have worked X-UI, then it will Install nginx upper your X-UI only.
+Modify X-UI from alireza0 inside.
+For the additional subdomain, New A,AAAA[VPSIP] Recorde , no any config in vps!!!
+SSL works for (yourdomain.com, *.yourdomain.com)
+No need to on/off CDN, during installation
+
+## Upgrade your X-UI to X-UI+nginx from alireza0 (modify)
+```
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -upgrade yes
+```
+Installing a new X-UI anyway. All previous data and settings will be saved.
+But in any case, I recommend making backups of configs and databases.
+
+## Add more domains to X-UI-PRO :heavy_plus_sign:
+```
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -subdomain sub.newdomain.com
 ```
 
-## Install custom version
-
-To install your desired version you can add the version to the end of install command. Example for ver `0.5.2`:
-
-```sh
-bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh) 0.5.2
+## Random fake html site :earth_asia:
+```
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/randomfakehtml.sh)
 ```
 
-## Manual install & upgrade
-
-1. First download the latest compressed package from https://github.com/alireza0/x-ui/releases, generally choose Architecture `amd64`
-2. Then upload the compressed package to the server's `/root/` directory and login to the server with user `root` 
-
-> If your server cpu architecture is not `amd64` replace another architecture
-
-```sh
-ARCH=$(uname -m)
-[[ "${ARCH}" == "s390x" ]] && XUI_ARCH="s390x" || [[ "${ARCH}" == "aarch64" || "${ARCH}" == "arm64" ]] && XUI_ARCH="arm64" || XUI_ARCH="amd64"
-cd /root/
-rm x-ui/ /usr/local/x-ui/ /usr/bin/x-ui -rf
-tar zxvf x-ui-linux-${XUI_ARCH}.tar.gz
-chmod +x x-ui/x-ui x-ui/bin/xray-linux-* x-ui/x-ui.sh
-cp x-ui/x-ui.sh /usr/bin/x-ui
-cp -f x-ui/x-ui.service /etc/systemd/system/
-mv x-ui/ /usr/local/
-systemctl daemon-reload
-systemctl enable x-ui
-systemctl restart x-ui
+## Uninstall :x:
+```
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -uninstall yes
 ```
 
-## Install using docker
+➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
+### Server Configuration :wrench:🐧⚙️
+![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/admin_config.png)
+![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/trojan_grpc_admin.png)
+➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
+### Client Configuration :white_check_mark:	:computer:🔌
+![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/client_config.png)
 
-1. install docker
+## Tools
+### Cloudflare Find Good IP (VPN off❗ during scanning)
 
-```shell
-curl -fsSL https://get.docker.com | sh
-```
+CF IP Range: https://www.cloudflare.com/ips/ | https://cf.igmsy.xyz/ip-list.html
 
-2. install x-ui
+CF IP Scanner:
+https://cf.igmsy.xyz |
+https://cloudflare-scanner.vercel.app |
+https://ircfspace.github.io/scanner/
 
-```shell
-mkdir x-ui && cd x-ui
-docker run -itd \
-    -p 54321:54321 -p 443:443 -p 80:80 \
-    -e XRAY_VMESS_AEAD_FORCED=false \
-    -v $PWD/db/:/etc/x-ui/ \
-    -v $PWD/cert/:/root/cert/ \
-    --name x-ui --restart=unless-stopped \
-    alireza7/x-ui:latest
-```
+----------------------------------------------------------------------------------------
 
-> Build your own image
-
-```shell
-docker build -t x-ui .
-```
-
-# Features
+# Features modify X-UI (alirez0)
 
 - System Status Monitoring
 - Search within all inbounds and clients
@@ -206,7 +217,7 @@ Reference syntax:
 - Login notification
 - CPU threshold notification
 - Threshold for Expiration time and Traffic to report in advance
-- Support client report menu if client's telegram username added to the user's configurations
+- Support client report menu if client's telegram ID or telegram UserName added to the user's configurations
 - Support telegram traffic report searched with UUID (VMESS/VLESS) or Password (TROJAN) - anonymously
 - Menu based bot
 - Search client by email ( only admin )
@@ -264,14 +275,7 @@ restart panel
 
 # a special thanks to
 
+- [Alireza Ahmadi](https://github.com/alireza0)
+- [Xue Xianliang](https://github.com/GFW4Fun)
 - [HexaSoftwareTech](https://github.com/HexaSoftwareTech/)
 - [MHSanaei](https://github.com/MHSanaei)
-
-# Acknowledgment
-
-- [Iran Hosted Domains](https://github.com/bootmortis/iran-hosted-domains) (License: **MIT**): _A comprehensive list of Iranian domains and services that are hosted within the country._
-- [PersianBlocker](https://github.com/MasterKia/PersianBlocker) (License: **AGPLv3**): _An optimal and extensive list to block ads and trackers on Persian websites._
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/alireza0/x-ui.svg)](https://starchart.cc/alireza0/x-ui)
