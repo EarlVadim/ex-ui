@@ -242,7 +242,7 @@ fi
 ###################################Install Panel#########################
 
 INSTALL_NEW_PANEL(){
-    printf 'n\n' | bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install-x-ui.sh)
+    printf 'n\n' | bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/add-x-ui.sh)
 	UPDATE_XUIDB
 	if ! systemctl is-enabled --quiet x-ui; then
 		systemctl daemon-reload
