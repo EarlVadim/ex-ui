@@ -85,8 +85,8 @@ if [[ ${INSTALL} == *"y"* ]]; then
 	$Pak -y update
 	$Pak -y install nginx-full certbot python3-certbot-nginx sqlite3 dnsutils haproxy
 	
-	systemctl enable --now nginx
 	systemctl enable --now haproxy
+	systemctl enable --now nginx
 fi
 #########################Install nginx Config###############################
 systemctl stop nginx 
