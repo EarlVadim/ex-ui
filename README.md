@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-![](https://img.shields.io/github/v/release/EarlVadim/x-ui.svg)
-[![Downloads](https://img.shields.io/github/downloads/EarlVadim/x-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/x-ui/total.svg)
+![](https://img.shields.io/github/v/release/EarlVadim/ex-ui.svg)
+[![Downloads](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)
 
 > **Disclaimer: This project is only for personal learning and communication, please do not use it for illegal purposes, please do not use it in a production environment**
 
@@ -9,7 +9,7 @@
 - x-ui-pro [Xue Xianliang](https://github.com/GFW4Fun)
 
 
-# X-UI-PRO (x-ui + nginx) :octocat:	:open_file_folder:	
+# ex-ui (x-ui + nginx) :octocat:	:open_file_folder:	
 
 - Auto Installation (lightweight)
 - Special for Cloudflare CDN
@@ -49,48 +49,48 @@ xray panel supporting multi-protocol, **Multi-lang (English,Farsi,Chinese,Russia
 
 --------------------------------------------------------------------------------------
 
-# Install X-UI-PRO
+# Install ex-ui
 
 
-## Install X-UI+nging :heavy_plus_sign:
+## Install ex-ui+nging :heavy_plus_sign:
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -install yes
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh) -install yes
 ```
-If you have worked X-UI, then it will Install nginx upper your X-UI only.
-Modify X-UI from alireza0 inside.
+If you have worked ex-ui, then it will Install nginx upper your ex-ui only.
+Modify ex-ui from alireza0 inside.
 For the additional subdomain, New A,AAAA[VPSIP] Recorde , no any config in vps!!!
 SSL works for (yourdomain.com, *.yourdomain.com)
 No need to on/off CDN, during installation
 
-## Upgrade your X-UI to X-UI+nginx from alireza0 (modify)
+## Upgrade your ex-ui to ex-ui+nginx from alireza0 (modify)
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -upgrade yes
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh) -upgrade yes
 ```
-Installing a new X-UI anyway. All previous data and settings will be saved.
+Installing a new ex-ui anyway. All previous data and settings will be saved.
 But in any case, I recommend making backups of configs and databases.
 
-## Add more domains to X-UI-PRO :heavy_plus_sign:
+## Add more domains to ex-ui :heavy_plus_sign:
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -subdomain sub.newdomain.com
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh) -subdomain sub.newdomain.com
 ```
 
 ## Random fake html site :earth_asia:
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/randomfakehtml.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/randomfakehtml.sh)
 ```
 
 ## Uninstall :x:
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/x-ui/main/install.sh) -uninstall yes
+bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh) -uninstall yes
 ```
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Server Configuration :wrench:🐧⚙️
-![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/admin_config.png)
-![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/trojan_grpc_admin.png)
+![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/admin_config.png)
+![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/trojan_grpc_admin.png)
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Client Configuration :white_check_mark:	:computer:🔌
-![](https://raw.githubusercontent.com/EarlVadim/x-ui/main/media/client_config.png)
+![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/client_config.png)
 
 ## Tools
 ### Cloudflare Find Good IP (VPN off❗ during scanning)
@@ -104,7 +104,7 @@ https://ircfspace.github.io/scanner/
 
 ----------------------------------------------------------------------------------------
 
-# Features modify X-UI (alirez0)
+# Features modify ex-ui (alirez0)
 
 - System Status Monitoring
 - Search within all inbounds and clients
@@ -192,7 +192,7 @@ certbot certonly --standalone --register-unsafely-without-email --non-interactiv
 <details>
   <summary>Click for details</summary>
 
-X-UI supports daily traffic notification, panel login reminder and other functions through the Tg robot. To use the Tg robot, you need to apply for the specific application tutorial. You can refer to the [blog](https://coderfan.net/how-to-use-telegram-bot-to-alarm-you-when-someone-login-into-your-vps.html)
+ex-ui supports daily traffic notification, panel login reminder and other functions through the Tg robot. To use the Tg robot, you need to apply for the specific application tutorial. You can refer to the [blog](https://coderfan.net/how-to-use-telegram-bot-to-alarm-you-when-someone-login-into-your-vps.html)
 Set the robot-related parameters in the panel background, including:
 
 - Tg robot Token
