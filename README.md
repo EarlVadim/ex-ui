@@ -2,6 +2,8 @@
 ![](https://img.shields.io/github/v/release/EarlVadim/ex-ui.svg)
 [![Downloads](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)
 
+Be sure to look at the settings in [WIKI](https://github.com/EarlVadim/ex-ui/wiki)
+
 > **Disclaimer: This project is only for personal learning and communication, please do not use it for illegal purposes, please do not use it in a production environment**
 
 > **This project is a compilation of forks of two projects by
@@ -12,9 +14,9 @@
 # ex-ui (x-ui + nginx) :octocat:	:open_file_folder:	
 
 - Auto Installation (lightweight)
-- Special for Cloudflare CDN
+- Special for Cloudflare CDN with single port 443
 - Auto SSL renewal (cronjob)
-- Auto-reload nginx and x-ui
+- Auto-reload nginx, haproxy and x-ui
 - Multi-domain and sub-domain support
 - Handle WebSocket and GRPC via nginx.
 - Multi-user and config via port 443
@@ -23,29 +25,30 @@
 - More security and low detection with nginx
 - Nginx with anti-exploit, keepalive=on, cache=off
 - Random 150+ fake template!
+- System Status Monitoring
+- Search within all inbounds and clients
+- Support Dark/Light theme UI
+- Support multi-user multi-protocol, web page visualization operation
+- Support multi-domain configuration and multi-certificate inbounds
+- Supported protocols: vmess, vless, trojan, shadowsocks, dokodemo-door, socks, http
+- Support for configuring more transport configurations
+- Traffic statistics, limit traffic, limit expiration time
+- Customizable xray configuration templates
+- Support subscription ( multi ) link
+- Detect users which are expiring or exceed traffic limit soon
+- Support https access panel (self-provided domain name + ssl certificate)
+- Support one-click SSL certificate application and automatic renewal
+- For more advanced configuration items, please refer to the panel
+- Support export/import database from panel
 
-xray panel supporting multi-protocol, **Multi-lang (English,Farsi,Chinese,Russian)**
-
-
-| Features                             |      Enable?       |
-| ------------------------------------ | :----------------: |
-| Multi-lang                           | :heavy_check_mark: |
-| Dark/Light Theme                     | :heavy_check_mark: |
-| Search in deep                       | :heavy_check_mark: |
-| Inbound Multi User                   | :heavy_check_mark: |
-| Multi User Traffic & Expiration time | :heavy_check_mark: |
-| REST API                             | :heavy_check_mark: |
-| Telegram BOT (admin + clients)       | :heavy_check_mark: |
-| Backup database using Telegram BOT   | :heavy_check_mark: |
-| Subscription link + userInfo         | :heavy_check_mark: |
-| Calculate expire date on first usage | :heavy_check_mark: |
-| Cloudflare CDN support               | :heavy_check_mark: |
 
 **If you think this project is helpful to you, you may wish to give a** :star2:
 **Buy Me a Coffee :**
 
-- Tron USDT (TRC20): `TZFsoK8H82fRcmo4TpGFmKAc57fvcRpMBc`
-- Ethereum (ETH): `0xD6ABe71CC33E49a3A2138B77E838929D7b7bFD3b`
+- ![USDT](https://img.shields.io/badge/Donate-USDT-orange?style=flat-square&logo=Tether) `TZFsoK8H82fRcmo4TpGFmKAc57fvcRpMBc`
+- ![Bitcoin](https://img.shields.io/badge/Donate-BTC-orange?style=flat-square&logo=bitcoin) `bc1qxzg9gf06xfc9x2ryc665zkn6ec6ea2cn09v4v8`
+- ![Ethereum](https://img.shields.io/badge/Donate-ETH-blueviolet?style=flat-square&logo=Ethereum) `0xD6ABe71CC33E49a3A2138B77E838929D7b7bFD3b`
+- ![LiteCoin](https://img.shields.io/badge/Donate-LTC-blue?style=flat-square&logo=Litecoin) `LQUuZPFUytt3Pdf1MJ5W5WBjWM21zViRvR`
 
 --------------------------------------------------------------------------------------
 
@@ -86,8 +89,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Server Configuration :wrench:🐧⚙️
-![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/admin_config.png)
-![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/trojan_grpc_admin.png)
+![](https://github.com/EarlVadim/ex-ui/wiki)
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Client Configuration :white_check_mark:	:computer:🔌
 ![](https://raw.githubusercontent.com/EarlVadim/ex-ui/main/media/client_config.png)
@@ -104,32 +106,10 @@ https://ircfspace.github.io/scanner/
 
 ----------------------------------------------------------------------------------------
 
-# Features modify ex-ui (alirez0)
-
-- System Status Monitoring
-- Search within all inbounds and clients
-- Support Dark/Light theme UI
-- Support multi-user multi-protocol, web page visualization operation
-- Support multi-domain configuration and multi-certificate inbounds
-- Supported protocols: vmess, vless, trojan, shadowsocks, dokodemo-door, socks, http
-- Support for configuring more transport configurations
-- Traffic statistics, limit traffic, limit expiration time
-- Customizable xray configuration templates
-- Support subscription ( multi ) link
-- Detect users which are expiring or exceed traffic limit soon
-- Support https access panel (self-provided domain name + ssl certificate)
-- Support one-click SSL certificate application and automatic renewal
-- For more advanced configuration items, please refer to the panel
-- Support export/import database from panel
-
-## suggestion system
-
-- CentOS 8+
-- Ubuntu 20+
-- Debian 10+
-- Fedora 36+
-
 ## API routes
+
+<details>
+  <summary>Click for details</summary>
 
 - `/login` with `PUSH` user data: `{username: '', password: ''}` for login
 - `/xui/API/inbounds` base for following actions:
@@ -165,10 +145,7 @@ https://ircfspace.github.io/scanner/
 | XUI_BIN_FOLDER |                    `string`                    | `"bin"`       |
 | XUI_DB_FOLDER  |                    `string`                    | `"/etc/x-ui"` |
 
-# Screenshot from Inbouds page
-
-![inbounds](./media/inbounds.png)
-![Dark inbounds](./media/inbounds-dark.png)
+</details>
 
 ## SSL certificate application
 
@@ -228,54 +205,9 @@ Reference syntax:
 - Multi language bot
 </details>
 
-# T-Shoots:
-
-**If you upgrade from an old version or other forks, for enable traffic for users you should do :**
-
-find this in config :
-
-```json
- "policy": {
-    "system": {
-```
-
-**and add this just after ` "policy": {` :**
-
-```json
-    "levels": {
-      "0": {
-        "statsUserUplink": true,
-        "statsUserDownlink": true
-      }
-    },
-```
-
-**the final output is like :**
-
-```json
-  "policy": {
-    "levels": {
-      "0": {
-        "statsUserUplink": true,
-        "statsUserDownlink": true
-      }
-    },
-
-    "system": {
-      "statsInboundDownlink": true,
-      "statsInboundUplink": true
-    }
-  },
-  "routing": {
-```
-
-restart panel
-
-</details>
 
 # a special thanks to
 
 - [Alireza Ahmadi](https://github.com/alireza0)
 - [Xue Xianliang](https://github.com/GFW4Fun)
-- [HexaSoftwareTech](https://github.com/HexaSoftwareTech/)
 - [MHSanaei](https://github.com/MHSanaei)
