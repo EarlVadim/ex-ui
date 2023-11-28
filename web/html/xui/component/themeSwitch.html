@@ -1,0 +1,34 @@
+{{define "component/themeSwitchTemplate"}}
+<template>
+  <a-switch size="small" :default-checked="themeSwitcher.isDarkTheme"
+            @change="themeSwitcher.toggleTheme()">
+  </a-switch>
+</template>
+{{end}}
+
+{{define "component/themeSwitcher"}}
+<script>
+  function createThemeSwitcher() {
+    const isDarkTheme = localStorage.getItem('dark-mode') === 'true';
+    const theme = isDarkTheme ? 'dark' : 'light';
+    return {
+      isDarkTheme,
+      get currentTheme() {
+        return this.isDarkTheme ? 'dark' : 'light';
+      },
+      toggleTheme() {
+        this.isDarkTheme = !this.isDarkTheme;
+        localStorage.setItem('dark-mode', this.isDarkTheme);
+      },
+    };
+  }
+
+  const themeSwitcher = createThemeSwitcher();
+
+  Vue.component('theme-switch', {
+    props: [],
+    template: `{{template "component/themeSwitchTemplate"}}`,
+    data: () => ({ themeSwitcher }),
+  });
+</script>
+{{end}}

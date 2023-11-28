@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<style>
+    h1 {
+        text-align: center;
+        margin: 20px 0 50px 0;
+    }
+
+    .ant-btn, .ant-input {
+        height: 50px;
+        border-radius: 30px;
+    }
+
+    .ant-input-group-addon {
+        border-radius: 0 30px 30px 0;
+        width: 50px;
+        font-size: 18px;
+    }
+
+    .ant-input-affix-wrapper .ant-input-prefix {
+        left: 23px;
+    }
+
+    .ant-input-affix-wrapper .ant-input:not(:first-child) {
+        padding-left: 50px;
+    }
+
+    .centered {
+        display: flex;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .title {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    #app {
+        overflow: hidden;
+    }
+    #login {
+        animation: charge .5s both;
+        background-color: #fff;
+        border-radius: 2rem;
+        padding: 3rem;
+    }
+    #login:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,.09);
+    }
+    @keyframes charge {
+        from {transform: translateY(5rem);opacity: 0}
+        to {transform: translateY(0);opacity: 1}
+    }
+    @keyframes wave {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+    }
+    .wave {
+        opacity: .6;
+        position: absolute;
+        bottom: 40%;
+        left: 50%;
+        width: 6000px;
+        height: 6000px;
+        background: #000;
+        margin-left: -3000px;
+        transform-origin: 50% 48%;
+        border-radius: 46%;
+        animation: wave 72s infinite linear;
+        pointer-events: none;
+    }
+    .wave2 {
+        animation: wave 88s infinite linear;
+        opacity: .3;
+    }
+    .wave3 {
+        animation: wave 80s infinite linear;
+        opacity: .1;
+    }
+    .wave {
+        background: #0e49b515;
+    }
+    .under {
+        background-color: #dce9f5;
+    }
+    .dark .wave {
+        background: rgb(14 73 181 / 20%);
+    }
+    .dark .under {
+        background-color: #101828;
+    }
+    .dark #login {
+        background-color: #151F31;
+    }
+    .dark h1 {
+        color: rgb(255 255 255 / 85%);
+    }
+</style>
+<body>
+<a-layout id="app" v-cloak :class="themeSwitcher.currentTheme">
+    <transition name="list" appear>
+        <a-layout-content class="under">
+            <div class='wave'></div>
+            <div class='wave wave2'></div>
+            <div class='wave wave3'></div>
+            <a-row type="flex" justify="center" align="middle" style="height: 100%;">
+            <a-col :xs="22" :sm="20" :md="14" :lg="10" :xl="6" id="login">
+            <a-row type="flex" justify="center">
+                <a-col>
+                    <h1 class="title">{{ i18n "pages.login.title" }}</h1>
+                </a-col>
+            </a-row>
+            <a-row type="flex" justify="center">
+                <a-col span="24">
+                    <a-form>
+                        <a-form-item>
+                            <a-input v-model.trim="user.username" placeholder='{{ i18n "username" }}'
+                                     @keydown.enter.native="login" autofocus>
+                                <a-icon slot="prefix" type="user" style="font-size: 16px;"/>
+                            </a-input>
+                        </a-form-item>
+                        <a-form-item>
+                            <password-input icon="lock" v-model.trim="user.password"
+                                            placeholder='{{ i18n "password" }}' @keydown.enter.native="login">
+                            </password-input>
+                        </a-form-item>
+                        <a-form-item>
+                            <a-row justify="center" class="centered">
+                                <a-button type="primary" :loading="loading" @click="login" :icon="loading ? 'poweroff' : undefined"
+                                          :style="loading ? { width: '50px' } : { display: 'block', width: '100%' }">
+                                    [[ loading ? '' : '{{ i18n "login" }}' ]]
+                                </a-button>
+                            </a-row>
+                        </a-form-item>
+                        <a-form-item>
+                            <a-row justify="center" class="centered">
+                                <a-col :span="24">
+                                    <a-select ref="selectLang" v-model="lang" @change="setLang(lang)" style="width: 150px;" :dropdown-class-name="themeSwitcher.currentTheme">
+                                        <a-select-option :value="l.value" label="English" v-for="l in supportLangs">
+                                            <span role="img" aria-label="l.name" v-text="l.icon"></span>
+                                            &nbsp;&nbsp;<span v-text="l.name"></span>
+                                        </a-select-option>
+                                    </a-select>
+                                </a-col>
+                            </a-row>
+                        </a-form-item>
+                        <a-form-item>
+                            <a-row justify="center" class="centered">
+                                <a-col>
+                                    <a-icon type="bulb" :theme="themeSwitcher.isDarkTheme ? 'filled' : 'outlined'"></a-icon>&nbsp;
+                                </a-col>
+                                <a-col>
+                                    <theme-switch />
+                                </a-col>
+                            </a-row>
+                        </a-form-item>
+                    </a-form>
+                </a-col>
+            </a-row>
+            </a-col>
+            </a-row>
+        </a-layout-content>
+    </transition>
+</a-layout>
+{{template "js" .}}
+{{template "component/themeSwitcher" .}}
+{{template "component/password" .}}
+<script>
+    const app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            themeSwitcher,
+            loading: false,
+            user: new User(),
+            lang: ""
+        },
+        created() {
+            this.updateBackground();
+            this.lang = getLang();
+        },
+        methods: {
+            async login() {
+                this.loading = true;
+                const msg = await HttpUtil.post('/login', this.user);
+                this.loading = false;
+                if (msg.success) {
+                    location.href = basePath + 'xui/';
+                }
+            },
+            updateBackground() {
+                document.querySelector('#app').style.background = colors[this.themeSwitcher.currentTheme].bg;
+            },
+        },
+        watch: {
+            'themeSwitcher.isDarkTheme'(newVal, oldVal) {
+                this.updateBackground();
+            },
+        },
+    });
+</script>
+</body>
+</html>

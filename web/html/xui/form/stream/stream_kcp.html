@@ -1,0 +1,85 @@
+{{define "form/streamKCP"}}
+<a-form layout="inline">
+    <table width="100%" class="ant-table-tbody">
+        <tr>
+            <td>{{ i18n "camouflage" }}</td>
+            <td>
+                <a-form-item>
+                    <a-select v-model="inbound.stream.kcp.type" style="width: 250px;" :dropdown-class-name="themeSwitcher.currentTheme">
+                        <a-select-option value="none">none (not camouflage)</a-select-option>
+                        <a-select-option value="srtp">srtp (video call)</a-select-option>
+                        <a-select-option value="utp">utp (BT download)</a-select-option>
+                        <a-select-option value="wechat-video">wechat-video (WeChat video)</a-select-option>
+                        <a-select-option value="dtls">dtls (DTLS 1.2 packages)</a-select-option>
+                        <a-select-option value="wireguard">wireguard (wireguard packages)</a-select-option>
+                    </a-select>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>{{ i18n "password" }}</td>
+            <td>
+                <a-form-item>
+                    <a-input v-model="inbound.stream.kcp.seed" style="width: 250px;"></a-input>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>mtu</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.mtu"></a-input-number>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>tti (ms)</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.tti"></a-input-number>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>uplink capacity (MB/S)</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.upCap"></a-input-number>
+                </a-form-item> 
+            </td>
+        </tr>
+        <tr>
+            <td>downlink capacity (MB/S)</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.downCap"></a-input-number>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>congestion</td>
+            <td>
+                <a-form-item>
+                    <a-switch v-model="inbound.stream.kcp.congestion"></a-switch>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>read buffer size (MB)</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.readBuffer"></a-input-number>
+                </a-form-item>
+            </td>
+        </tr>
+        <tr>
+            <td>write buffer size (MB)</td>
+            <td>
+                <a-form-item>
+                    <a-input-number v-model.number="inbound.stream.kcp.writeBuffer"></a-input-number>
+                </a-form-item>
+            </td>
+        </tr>
+    </table>
+</a-form>
+{{end}}

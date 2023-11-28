@@ -1,0 +1,24 @@
+{{define "form/streamWS"}}
+<a-form layout="inline">
+    <a-form-item label="AcceptProxyProtocol">
+        <a-switch v-model="inbound.stream.ws.acceptProxyProtocol"></a-switch>
+    </a-form-item>
+    <br>
+    <a-form-item label='{{ i18n "path" }}'>
+        <a-input v-model.trim="inbound.stream.ws.path"></a-input>
+    </a-form-item>
+    <br>
+    <a-form-item style="width: 100%;">
+        <span>{{ i18n "pages.inbounds.stream.general.requestHeader" }}:</span>
+        <a-button size="small" style="margin-left: 10px" @click="inbound.stream.ws.addHeader()">+</a-button>
+        <a-input-group compact v-for="(header, index) in inbound.stream.ws.headers">
+            <a-input style="width: 50%" v-model.trim="header.name" placeholder='{{ i18n "pages.inbounds.stream.general.name"}}'>
+                <template slot="addonBefore" style="margin: 0;">[[ index+1 ]]</template>
+            </a-input>
+            <a-input style="width: 50%" v-model.trim="header.value" placeholder='{{ i18n "pages.inbounds.stream.general.value" }}'>
+                <a-button slot="addonAfter" size="small" @click="inbound.stream.ws.removeHeader(index)">-</a-button>
+            </a-input>
+        </a-input-group>
+    </a-form-item>
+</a-form>
+{{end}}
