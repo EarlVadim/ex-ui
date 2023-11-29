@@ -279,8 +279,8 @@ if systemctl is-active --quiet x-ui && [[ $XUIPORT -eq $PORT ]]; then clear
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	msg_inf "\nTo use the VLESS+reality, create the vless.${MainDomain} in DNS-only mode        "
 	msg_inf "To use the TROJAN+reality, create the trojan.${MainDomain} in DNS-only mode        "
-	msg_inf "\nX-UI Admin Panel: https://${domain}/${RNDSTR}\n"
-	msg_inf " Login  | Password"
+	msg_inf "\nX-UI Admin Panel: https://${domain}/${RNDSTR}/\n"
+	msg_inf "  Login  | Password"
 	sqlite3 -batch $XUIDB 'SELECT "username","password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 else
