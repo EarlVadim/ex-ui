@@ -13,8 +13,16 @@ Be sure to look at the settings in [WIKI](https://github.com/EarlVadim/ex-ui/wik
 - x-ui [Alireza Ahmadi](https://github.com/alireza0)
 - x-ui-pro [Xue Xianliang](https://github.com/GFW4Fun)
 
+**If you think this project is helpful to you, you may wish to give a** :star2:
+**Buy Me a Coffee :**
 
-# ex-ui (x-ui + nginx) :octocat:	:open_file_folder:	
+- ![USDT](https://img.shields.io/badge/Donate-USDT-orange?style=flat-square&logo=Tether) `TZFsoK8H82fRcmo4TpGFmKAc57fvcRpMBc`
+- ![Bitcoin](https://img.shields.io/badge/Donate-BTC-orange?style=flat-square&logo=bitcoin) `bc1qxzg9gf06xfc9x2ryc665zkn6ec6ea2cn09v4v8`
+- ![Ethereum](https://img.shields.io/badge/Donate-ETH-blueviolet?style=flat-square&logo=Ethereum) `0xD6ABe71CC33E49a3A2138B77E838929D7b7bFD3b`
+- ![LiteCoin](https://img.shields.io/badge/Donate-LTC-blue?style=flat-square&logo=Litecoin) `LQUuZPFUytt3Pdf1MJ5W5WBjWM21zViRvR`
+
+
+# ex-ui (x-ui + nginx + haproxy) :octocat:	:open_file_folder:	
 
 - Auto Installation (lightweight)
 - Special for Cloudflare CDN with single port 443
@@ -43,15 +51,6 @@ Be sure to look at the settings in [WIKI](https://github.com/EarlVadim/ex-ui/wik
 - Support one-click SSL certificate application and automatic renewal
 - For more advanced configuration items, please refer to the panel
 - Support export/import database from panel
-
-
-**If you think this project is helpful to you, you may wish to give a** :star2:
-**Buy Me a Coffee :**
-
-- ![USDT](https://img.shields.io/badge/Donate-USDT-orange?style=flat-square&logo=Tether) `TZFsoK8H82fRcmo4TpGFmKAc57fvcRpMBc`
-- ![Bitcoin](https://img.shields.io/badge/Donate-BTC-orange?style=flat-square&logo=bitcoin) `bc1qxzg9gf06xfc9x2ryc665zkn6ec6ea2cn09v4v8`
-- ![Ethereum](https://img.shields.io/badge/Donate-ETH-blueviolet?style=flat-square&logo=Ethereum) `0xD6ABe71CC33E49a3A2138B77E838929D7b7bFD3b`
-- ![LiteCoin](https://img.shields.io/badge/Donate-LTC-blue?style=flat-square&logo=Litecoin) `LQUuZPFUytt3Pdf1MJ5W5WBjWM21zViRvR`
 
 --------------------------------------------------------------------------------------
 
