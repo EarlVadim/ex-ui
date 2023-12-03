@@ -2,11 +2,14 @@
 ![](https://img.shields.io/github/v/release/EarlVadim/ex-ui.svg)
 [![Downloads](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)
 
+This fork of the panel from alireza0 version 1.6.0 is made specifically for the operation of inbonds via CDN on a single 443 port
+It correctly generates links to settings and subscriptions.
+
 Be sure to look at the settings in [WIKI](https://github.com/EarlVadim/ex-ui/wiki)
 
-> **Disclaimer: This project is only for personal learning and communication, please do not use it for illegal purposes, please do not use it in a production environment**
-
-> **This project is a compilation of forks of two projects by
+> **Disclaimer: This project is only for personal learning and communication,** 
+> **please do not use it for illegal purposes, please do not use it in a production environment**
+> **This project is a compilation of forks of two projects by**
 - x-ui [Alireza Ahmadi](https://github.com/alireza0)
 - x-ui-pro [Xue Xianliang](https://github.com/GFW4Fun)
 
