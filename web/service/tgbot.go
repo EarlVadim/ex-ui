@@ -334,6 +334,27 @@ func (t *Tgbot) SendReport() {
 	}
 }
 
+func (t *Tgbot) SendUserReport() {
+	runTime, err := t.settingService.GetTgbotRuntime()
+	if err == nil && len(runTime) > 0 {
+		msg := ""
+		msg += t.I18nBot("tgbot.messages.report", "RunTime=="+runTime)
+		msg += t.I18nBot("tgbot.messages.datetime", "DateTime=="+time.Now().Format("2006-01-02 15:04:05"))
+		t.SendMsgToTgbotAdmins(msg)
+	}
+
+	info := t.getServerUsage()
+	t.SendMsgToTgbotAdmins(info)
+
+	exhausted := t.getExhausted()
+	t.SendMsgToTgbotAdmins(exhausted)
+
+	backupEnable, err := t.settingService.GetTgBotBackup()
+	if err == nil && backupEnable {
+		t.SendBackupToAdmins()
+	}
+}
+
 func (t *Tgbot) SendBackupToAdmins() {
 	if !t.IsRunning() {
 		return
@@ -466,11 +487,11 @@ func (t *Tgbot) clientInfoMsg(traffic *xray.ClientTraffic) string {
 		active = t.I18nBot("tgbot.messages.no")
 	}
 
-	status := t.I18nBot("offline")
+	status := t.I18nBot("tgbot.messages.tgoffline")
 	if p.IsRunning() {
 		for _, online := range p.GetOnlineClients() {
 			if online == traffic.Email {
-				status = t.I18nBot("online")
+				status = t.I18nBot("tgbot.messages.tgonline")
 				break
 			}
 		}

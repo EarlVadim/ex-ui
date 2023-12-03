@@ -236,7 +236,13 @@
                                 </a-dropdown>
                             </template>
                             <template slot="protocol" slot-scope="text, dbInbound">
-                                <a-tag style="margin:0;" color="purple">[[ dbInbound.protocol ]]</a-tag>
+							    <template v-if="dbInbound.isVLess || dbInbound.isTrojan"> 
+                                    <a-tag style="margin:0;" v-if="dbInbound.isVLess" color="yellow">[[ dbInbound.protocol ]]</a-tag>
+							    	<a-tag style="margin:0;" v-if="dbInbound.isTrojan" color="lime">[[ dbInbound.protocol ]]</a-tag>
+								</template>
+								<template v-else> 
+								    <a-tag style="margin:0;" color="purple">[[ dbInbound.protocol ]]</a-tag>
+								</template>
                                 <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS || dbInbound.isCdn">
                                     <a-tag style="margin:0;" color="blue">[[ dbInbound.toInbound().stream.network ]]</a-tag>
                                     <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isTls" color="green">tls</a-tag>
@@ -317,7 +323,13 @@
                                             <tr>
                                                 <td>{{ i18n "pages.inbounds.protocol" }}</td>
                                                 <td>
-                                                    <a-tag style="margin:0;" color="purple">[[ dbInbound.protocol ]]</a-tag>
+                                                    <template v-if="dbInbound.isVLess || dbInbound.isTrojan"> 
+                                                        <a-tag style="margin:0;" v-if="dbInbound.isVLess" color="yellow">[[ dbInbound.protocol ]]</a-tag>
+							    	                    <a-tag style="margin:0;" v-if="dbInbound.isTrojan" color="lime">[[ dbInbound.protocol ]]</a-tag>
+								                    </template>
+							                    	<template v-else> 
+								                        <a-tag style="margin:0;" color="purple">[[ dbInbound.protocol ]]</a-tag>
+							                    	</template>
                                                     <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">
                                                         <a-tag style="margin:0;" color="blue">[[ dbInbound.toInbound().stream.network ]]</a-tag>
                                                         <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isTls" color="green">tls</a-tag>

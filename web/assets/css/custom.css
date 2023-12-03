@@ -396,6 +396,16 @@ style attribute {
     border-color: #d5bed2;
     color: #8d3880;
 }
+.ant-tag-yellow {
+    background-color: #f2eaf1;
+    border-color: #08AA00;
+    color: #8d3880;
+}
+.ant-tag-lime {
+    background-color: #f2eaf1;
+    border-color: #0044AA;
+    color: #8d3880;
+}
 .ant-tag-orange,
 .ant-alert-warning {
     background-color:#fff6E6;
@@ -696,6 +706,18 @@ style attribute {
 .dark .ant-tag-purple {
     background-color: #2c1e32;
     border-color: #49394e;
+    color: #E5C9DF;
+}
+
+.dark .ant-tag-yellow {
+    background-color: #2c1e32;
+    border-color: #19AF0D;
+    color: #E5C9DF;
+}
+
+.dark .ant-tag-lime {
+    background-color: #2c1e32;
+    border-color: #1458C4;
     color: #E5C9DF;
 }
 

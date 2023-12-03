@@ -1450,7 +1450,7 @@ class Inbound extends XrayCommonClass {
             }
         }
         address = this.extlisten;
-        const link = `trojan://${settings.trojans[clientIndex].password}@${address}:${this.port}`;
+        const link = `trojan://${settings.trojans[clientIndex].password}@${address}:${port}`;
         const url = new URL(link);
         for (const [key, value] of params) {
             url.searchParams.set(key, value)

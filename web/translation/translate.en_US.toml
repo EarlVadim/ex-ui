@@ -423,6 +423,8 @@
 "backupTime" = "🗄 Backup Time: {{ .Time }}\r\n"
 "yes" = "✅ Yes"
 "no" = "❌ No"
+"tgonline" = "✅ Online"
+"tgoffline" = "❌ Offline"
 
 [tgbot.buttons]
 "dbBackup" = "Get DB Backup"
