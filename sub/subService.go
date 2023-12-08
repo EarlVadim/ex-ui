@@ -315,6 +315,7 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 		  params["security"] = "tls"
 		  params["fp"] = "chrome"
 		  params["packetEncoding"] = "xudp"
+		  params["encryption"] = "none"
 		}				  
 	case "http":
 		http, _ := stream["httpSettings"].(map[string]interface{})
@@ -331,6 +332,9 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 		params["serviceName"] = grpc["serviceName"].(string)
 		if grpc["multiMode"].(bool) {
 			params["mode"] = "multi"
+			params["security"] = "tls"
+		    params["fp"] = "chrome"
+			params["encryption"] = "none"
 		}
 	}
 
@@ -510,6 +514,9 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 		params["serviceName"] = grpc["serviceName"].(string)
 		if grpc["multiMode"].(bool) {
 			params["mode"] = "multi"
+			params["security"] = "tls"
+		    params["fp"] = "chrome"
+			params["encryption"] = "none"
 		}
 	}
 
