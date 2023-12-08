@@ -321,6 +321,12 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 		http, _ := stream["httpSettings"].(map[string]interface{})
 		params["path"] = http["path"].(string)
 		params["host"] = searchHost(http)
+		if inbound.Cdn == true {
+		  params["security"] = "tls"
+		  params["fp"] = "chrome"
+		  params["packetEncoding"] = "xudp"
+		  params["encryption"] = "none"
+		}
 	case "quic":
 		quic, _ := stream["quicSettings"].(map[string]interface{})
 		params["quicSecurity"] = quic["security"].(string)
@@ -331,10 +337,12 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 		grpc, _ := stream["grpcSettings"].(map[string]interface{})
 		params["serviceName"] = grpc["serviceName"].(string)
 		if grpc["multiMode"].(bool) {
-			params["mode"] = "multi"
-			params["security"] = "tls"
-		    params["fp"] = "chrome"
-			params["encryption"] = "none"
+			params["mode"] = "multi"			
+		}
+		if inbound.Cdn == true {
+		   params["security"] = "tls"
+		   params["fp"] = "chrome"
+	       params["encryption"] = "none"
 		}
 	}
 
@@ -503,6 +511,11 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 		http, _ := stream["httpSettings"].(map[string]interface{})
 		params["path"] = http["path"].(string)
 		params["host"] = searchHost(http)
+		if inbound.Cdn == true {
+		  params["security"] = "tls"
+		  params["fp"] = "chrome"
+		  params["packetEncoding"] = "xudp"
+		}
 	case "quic":
 		quic, _ := stream["quicSettings"].(map[string]interface{})
 		params["quicSecurity"] = quic["security"].(string)
@@ -513,10 +526,12 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 		grpc, _ := stream["grpcSettings"].(map[string]interface{})
 		params["serviceName"] = grpc["serviceName"].(string)
 		if grpc["multiMode"].(bool) {
-			params["mode"] = "multi"
-			params["security"] = "tls"
-		    params["fp"] = "chrome"
-			params["encryption"] = "none"
+			params["mode"] = "multi"			
+		}
+		if inbound.Cdn == true {
+		   params["security"] = "tls"
+		   params["fp"] = "chrome"
+	       params["encryption"] = "none"
 		}
 	}
 

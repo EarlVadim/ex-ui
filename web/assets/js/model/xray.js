@@ -1224,6 +1224,11 @@ class Inbound extends XrayCommonClass {
                 const http = this.stream.http;
                 params.set("path", http.path);
                 params.set("host", http.host);
+				if (this.cdn === true) {
+					params.set("security", "tls");
+				    params.set("fp", "chrome");
+					params.set("packetEncoding", "xudp");
+				}
                 break;
             case "quic":
                 const quic = this.stream.quic;
@@ -1237,6 +1242,11 @@ class Inbound extends XrayCommonClass {
                 if(grpc.multiMode){
                     params.set("mode", "multi");
                 }
+				if (this.cdn === true) {
+					params.set("security", "tls");
+				    params.set("fp", "chrome");
+					params.set("encryption", "none");
+				}
                 break;
         }
 
@@ -1400,6 +1410,11 @@ class Inbound extends XrayCommonClass {
                 const http = this.stream.http;
                 params.set("path", http.path);
                 params.set("host", http.host);
+				if (this.cdn === true) {
+					params.set("security", "tls");
+				    params.set("fp", "chrome");
+					params.set("packetEncoding", "xudp");
+				}
                 break;
             case "quic":
                 const quic = this.stream.quic;
@@ -1413,6 +1428,11 @@ class Inbound extends XrayCommonClass {
                 if(grpc.multiMode){
                     params.set("mode", "multi");
                 }
+				if (this.cdn === true) {
+					params.set("security", "tls");
+				    params.set("fp", "chrome");
+					params.set("encryption", "none");
+				}
                 break;
         }
 
