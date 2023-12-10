@@ -25,6 +25,12 @@ func (c *InboundConfig) Equals(other *InboundConfig) bool {
 	if c.Port != other.Port {
 		return false
 	}
+	if c.Extlisten != other.Extlisten {
+		return false
+	}
+	if c.Extport != other.Extport {
+		return false
+	}
 	if c.Protocol != other.Protocol {
 		return false
 	}
@@ -35,6 +41,9 @@ func (c *InboundConfig) Equals(other *InboundConfig) bool {
 		return false
 	}
 	if c.Tag != other.Tag {
+		return false
+	}
+	if c.Cdn != other.Cdn {
 		return false
 	}
 	if !bytes.Equal(c.Sniffing, other.Sniffing) {

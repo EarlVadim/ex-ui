@@ -19,8 +19,8 @@
             :overlay-class-name="themeSwitcher.currentTheme"
             ok-text='{{ i18n "reset"}}'
             cancel-text='{{ i18n "cancel"}}'>
-            <a-icon slot="icon" type="question-circle-o" style="color: blue"></a-icon>
-            <a-icon style="font-size: 24px;" class="normal-icon" type="retweet" v-if="client.email.length > 0"></a-icon>
+            <a-icon slot="icon" type="question-circle-o" :style="themeSwitcher.isDarkTheme ? 'color: #3c89e8' : 'color: blue'"></a-icon>
+            <a-icon style="font-size: 24px; cursor: pointer;" class="normal-icon" type="retweet" v-if="client.email.length > 0"></a-icon>
         </a-popconfirm>
     </a-tooltip>
     <a-tooltip>
@@ -32,7 +32,7 @@
             ok-type="danger"
             cancel-text='{{ i18n "cancel"}}'>
             <a-icon slot="icon" type="question-circle-o" style="color: #e04141"></a-icon>
-            <a-icon style="font-size: 24px" class="delete-icon" type="delete" v-if="isRemovable(record.id)"></a-icon>
+            <a-icon style="font-size: 24px; cursor: pointer;" class="delete-icon" type="delete" v-if="isRemovable(record.id)"></a-icon>
         </a-popconfirm>
     </a-tooltip>
 </template>
@@ -84,7 +84,7 @@
                                 :percent="statsProgress(record, client.email)"/>
                 </td>
                 <td width="120px" v-else-if="client.totalGB > 0">
-                    <a-progress :stroke-color="statsColor(record, client.email)"
+                    <a-progress :stroke-color="clientStatsColor(record, client.email)"
                                 :show-info="false"
                                 :status="isClientOnline(client.email)? 'active' : isClientEnabled(record, client.email)? 'exception' : ''"
                                 :percent="statsProgress(record, client.email)"/>
@@ -200,7 +200,7 @@
                                     </tr>
                                 </table>
                             </template>
-                            <a-progress :stroke-color="statsColor(record, client.email)"
+                            <a-progress :stroke-color="clientStatsColor(record, client.email)"
                                         :show-info="false"
                                         :status="isClientOnline(client.email)? 'active' : isClientEnabled(record, client.email)? 'exception' : ''"
                                         :percent="statsProgress(record, client.email)"/>

@@ -168,9 +168,13 @@ func (s *InboundService) AddInbound(inbound *model.Inbound) (*model.Inbound, boo
 
 	err = tx.Save(inbound).Error
 	if err == nil {
-		for _, client := range clients {
-			s.AddClientStat(tx, inbound.Id, &client)
+		if len(inbound.ClientStats) == 0 {
+			for _, client := range clients {
+				s.AddClientStat(tx, inbound.Id, &client)
+			}
 		}
+	} else {
+		return inbound, false, err
 	}
 
 	needRestart := false
@@ -275,7 +279,7 @@ func (s *InboundService) UpdateInbound(inbound *model.Inbound) (*model.Inbound, 
 	oldInbound.Port = inbound.Port
 	oldInbound.Extlisten = inbound.Extlisten
 	oldInbound.Extport = inbound.Extport
-	oldInbound.Cdn = inbound.Cdn									 
+	oldInbound.Cdn = inbound.Cdn
 	oldInbound.Protocol = inbound.Protocol
 	oldInbound.Settings = inbound.Settings
 	oldInbound.StreamSettings = inbound.StreamSettings
@@ -283,7 +287,7 @@ func (s *InboundService) UpdateInbound(inbound *model.Inbound) (*model.Inbound, 
 	oldInbound.Tag = fmt.Sprintf("inbound-%v", inbound.Port)
 	if inbound.Extport == 0 {
 	  oldInbound.Extport = inbound.Port
-	}					  
+	}
 
 	needRestart := false
 	s.xrayApi.Init(p.GetAPIPort())
@@ -1200,27 +1204,16 @@ func (s *InboundService) DelDepletedClients(id int) (err error) {
 	return nil
 }
 
-func (s *InboundService) GetClientTrafficTgBot(tguname string) ([]*xray.ClientTraffic, error) {
+func (s *InboundService) GetClientTrafficTgBot(tgid string, tguname string) ([]*xray.ClientTraffic, error) {
 	db := database.GetDB()
-	var inbounds []*model.Inbound
-	err := db.Model(model.Inbound{}).Where("settings like ?", fmt.Sprintf(`%%"tgId": "%s"%%`, tguname)).Find(&inbounds).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, err
-	}
-	var emails []string
-	for _, inbound := range inbounds {
-		clients, err := s.GetClients(inbound)
-		if err != nil {
-			logger.Error("Unable to get clients from inbound")
-		}
-		for _, client := range clients {
-			if client.TgID == tguname {
-				emails = append(emails, client.Email)
-			}
-		}
-	}
 	var traffics []*xray.ClientTraffic
-	err = db.Model(xray.ClientTraffic{}).Where("email IN ?", emails).Find(&traffics).Error
+	err := db.Model(xray.ClientTraffic{}).Where(`email IN(
+		SELECT JSON_EXTRACT(client.value, '$.email') as email
+		FROM inbounds,
+	  	JSON_EACH(JSON_EXTRACT(inbounds.settings, '$.clients')) AS client
+		WHERE
+	  	JSON_EXTRACT(client.value, '$.tgId') in (?,?)
+		)`, tgid, tguname).Find(&traffics).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Warning(err)
@@ -1295,6 +1288,17 @@ func (s *InboundService) SearchInbounds(query string) ([]*model.Inbound, error) 
 	return inbounds, nil
 }
 
+func (s *InboundService) GetInboundTags() (string, error) {
+	db := database.GetDB()
+	var inboundTags []string
+	err := db.Model(model.Inbound{}).Select("tag").Find(&inboundTags).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return "", err
+	}
+	tags, _ := json.Marshal(inboundTags)
+	return string(tags), nil
+}
+
 func (s *InboundService) MigrationRequirements() {
 	db := database.GetDB()
 	tx := db.Begin()
@@ -1364,6 +1368,46 @@ func (s *InboundService) MigrationRequirements() {
 
 	// Remove orphaned traffics
 	tx.Where("inbound_id = 0").Delete(xray.ClientTraffic{})
+
+	// Migrate old MultiDomain to External Proxy
+	var externalProxy []struct {
+		Id             int
+		Port           int
+		StreamSettings []byte
+	}
+	err = tx.Raw(`select id, port, stream_settings
+	from inbounds
+	WHERE protocol in ('vmess','vless','trojan')
+	  AND json_extract(stream_settings, '$.security') = 'tls'
+	  AND json_extract(stream_settings, '$.tlsSettings.settings.domains') IS NOT NULL`).Scan(&externalProxy).Error
+	if err != nil || len(externalProxy) == 0 {
+		return
+	}
+
+	for _, ep := range externalProxy {
+		var reverses interface{}
+		var stream map[string]interface{}
+		json.Unmarshal(ep.StreamSettings, &stream)
+		if tlsSettings, ok := stream["tlsSettings"].(map[string]interface{}); ok {
+			if settings, ok := tlsSettings["settings"].(map[string]interface{}); ok {
+				if domains, ok := settings["domains"].([]interface{}); ok {
+					for _, domain := range domains {
+						if domainMap, ok := domain.(map[string]interface{}); ok {
+							domainMap["forceTls"] = "same"
+							domainMap["port"] = ep.Port
+							domainMap["dest"] = domainMap["domain"].(string)
+							delete(domainMap, "domain")
+						}
+					}
+				}
+				reverses = settings["domains"]
+				delete(settings, "domains")
+			}
+		}
+		stream["externalProxy"] = reverses
+		newStream, _ := json.MarshalIndent(stream, " ", "  ")
+		tx.Model(model.Inbound{}).Where("id = ?", ep.Id).Update("stream_settings", newStream)
+	}
 }
 
 func (s *InboundService) MigrateDB() {

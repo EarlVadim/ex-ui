@@ -34,11 +34,12 @@ var defaultValueMap = map[string]string{
 	"pageSize":           "0",
 	"expireDiff":         "0",
 	"trafficDiff":        "0",
-	"timeLocation":       "Asia/Tehran",
+	"remarkModel":        "-ieo",
+	"timeLocation":       "Europe/Minsk",
 	"tgBotEnable":        "false",
 	"tgBotToken":         "",
 	"tgBotChatId":        "",
-	"tgRunTime":          "@daily",
+	"tgRunTime":          "0 0 12 * * *",
 	"tgBotBackup":        "false",
 	"tgBotLoginNotify":   "false",
 	"tgCpu":              "0",
@@ -46,13 +47,14 @@ var defaultValueMap = map[string]string{
 	"subEnable":          "false",
 	"subListen":          "",
 	"subPort":            "2096",
-	"subPath":            "/sub/",
-	"subDomain":          "",
+	"subPath":            "/",
+	"subDomain":          "sub.<your_domain>",
 	"subCertFile":        "",
 	"subKeyFile":         "",
 	"subUpdates":         "12",
-	"subEncrypt":         "true",
+	"subEncrypt":         "false",
 	"subShowInfo":        "false",
+	"subURI":             "",
 }
 
 type SettingService struct {
@@ -294,6 +296,10 @@ func (s *SettingService) GetSessionMaxAge() (int, error) {
 	return s.getInt("sessionMaxAge")
 }
 
+func (s *SettingService) GetRemarkModel() (string, error) {
+	return s.getString("remarkModel")
+}
+
 func (s *SettingService) GetSecret() ([]byte, error) {
 	secret, err := s.getString("secret")
 	if secret == defaultValueMap["secret"] {
@@ -387,6 +393,10 @@ func (s *SettingService) GetPageSize() (int, error) {
 	return s.getInt("pageSize")
 }
 
+func (s *SettingService) GetSubURI() (string, error) {
+	return s.getString("subURI")
+}
+
 func (s *SettingService) UpdateAllSetting(allSetting *entity.AllSetting) error {
 	if err := allSetting.CheckValid(); err != nil {
 		return err
@@ -415,4 +425,64 @@ func (s *SettingService) GetDefaultXrayConfig() (interface{}, error) {
 		return nil, err
 	}
 	return jsonData, nil
+}
+
+func (s *SettingService) GetDefaultSettings(host string) (interface{}, error) {
+	type settingFunc func() (interface{}, error)
+	settings := map[string]settingFunc{
+		"expireDiff":  func() (interface{}, error) { return s.GetExpireDiff() },
+		"trafficDiff": func() (interface{}, error) { return s.GetTrafficDiff() },
+		"pageSize":    func() (interface{}, error) { return s.GetPageSize() },
+		"defaultCert": func() (interface{}, error) { return s.GetCertFile() },
+		"defaultKey":  func() (interface{}, error) { return s.GetKeyFile() },
+		"tgBotEnable": func() (interface{}, error) { return s.GetTgbotenabled() },
+		"subEnable":   func() (interface{}, error) { return s.GetSubEnable() },
+		"subURI":      func() (interface{}, error) { return s.GetSubURI() },
+		"remarkModel": func() (interface{}, error) { return s.GetRemarkModel() },
+	}
+
+	result := make(map[string]interface{})
+
+	for key, fn := range settings {
+		value, err := fn()
+		if err != nil {
+			return "", err
+		}
+		result[key] = value
+	}
+
+	if result["subEnable"].(bool) && result["subURI"].(string) == "" {
+		subURI := ""
+		subPort, _ := s.GetSubPort()
+		subPath, _ := s.GetSubPath()
+		subDomain, _ := s.GetSubDomain()
+		subKeyFile, _ := s.GetSubKeyFile()
+		subCertFile, _ := s.GetSubCertFile()
+		subTLS := false
+		if subKeyFile != "" && subCertFile != "" {
+			subTLS = true
+		}
+		if subDomain == "" {
+			subDomain = strings.Split(host, ":")[0]
+		}
+		if subTLS {
+			subURI = "https://"
+		} else {
+			subURI = "http://"
+		}
+		if (subPort == 443 && subTLS) || (subPort == 80 && !subTLS) {
+			subURI += subDomain
+		} else {
+			subURI += fmt.Sprintf("%s:%d", subDomain, subPort)
+		}
+		if subPath[0] == byte('/') {
+			subURI += subPath
+		} else {
+			subURI += "/" + subPath
+		}
+		subURI = "https://"+subDomain+"/"
+		result["subURI"] = subURI
+	}
+
+	return result, nil
 }

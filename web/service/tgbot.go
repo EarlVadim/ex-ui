@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"x-ui/config"
+	"x-ui/database"
 	"x-ui/database/model"
 	"x-ui/logger"
 	"x-ui/util/common"
@@ -334,27 +335,6 @@ func (t *Tgbot) SendReport() {
 	}
 }
 
-func (t *Tgbot) SendUserReport() {
-	runTime, err := t.settingService.GetTgbotRuntime()
-	if err == nil && len(runTime) > 0 {
-		msg := ""
-		msg += t.I18nBot("tgbot.messages.report", "RunTime=="+runTime)
-		msg += t.I18nBot("tgbot.messages.datetime", "DateTime=="+time.Now().Format("2006-01-02 15:04:05"))
-		t.SendMsgToTgbotAdmins(msg)
-	}
-
-	info := t.getServerUsage()
-	t.SendMsgToTgbotAdmins(info)
-
-	exhausted := t.getExhausted()
-	t.SendMsgToTgbotAdmins(exhausted)
-
-	backupEnable, err := t.settingService.GetTgBotBackup()
-	if err == nil && backupEnable {
-		t.SendBackupToAdmins()
-	}
-}
-
 func (t *Tgbot) SendBackupToAdmins() {
 	if !t.IsRunning() {
 		return
@@ -516,7 +496,7 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserName string) {
 		return
 	}
 
-	traffics, err := t.inboundService.GetClientTrafficTgBot(tgUserName)
+	traffics, err := t.inboundService.GetClientTrafficTgBot(strconv.FormatInt(chatId, 10), tgUserName)
 	if err != nil {
 		logger.Warning(err)
 		msg := t.I18nBot("tgbot.wentWrong")
@@ -525,6 +505,7 @@ func (t *Tgbot) getClientUsage(chatId int64, tgUserName string) {
 	}
 	if len(traffics) == 0 {
 		msg := t.I18nBot("tgbot.answers.askToAddUserName", "TgUserName=="+tgUserName)
+		msg += "\r\n" + t.I18nBot("tgbot.commands.getID", "ID=="+strconv.FormatInt(chatId, 10))
 		t.SendMsgToTgbot(chatId, msg)
 		return
 	}
@@ -717,12 +698,18 @@ func (t *Tgbot) sendBackup(chatId int64) {
 		return
 	}
 
+	// Update by manually trigger a checkpoint operation
+	err := database.Checkpoint()
+	if err != nil {
+		logger.Warning("Error in trigger a checkpoint operation: ", err)
+	}
+
 	output := t.I18nBot("tgbot.messages.backupTime", "Time=="+time.Now().Format("2006-01-02 15:04:05"))
 	t.SendMsgToTgbot(chatId, output)
 
 	file := tgbotapi.FilePath(config.GetDBPath())
 	msg := tgbotapi.NewDocument(chatId, file)
-	_, err := bot.Send(msg)
+	_, err = bot.Send(msg)
 	if err != nil {
 		logger.Warning("Error in uploading backup: ", err)
 	}

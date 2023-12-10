@@ -38,12 +38,12 @@ type Inbound struct {
 	Listen         string   `json:"listen" form:"listen"`
 	Port           int      `json:"port" form:"port" gorm:"unique"`
 	Extlisten      string   `json:"extlisten" form:"extlisten"`
-	Extport        int      `json:"extport" form:"extport"`														
+	Extport        int      `json:"extport" form:"extport"`
 	Protocol       Protocol `json:"protocol" form:"protocol"`
 	Settings       string   `json:"settings" form:"settings"`
 	StreamSettings string   `json:"streamSettings" form:"streamSettings"`
 	Tag            string   `json:"tag" form:"tag" gorm:"unique"`
-	Cdn            bool     `json:"cdn" form:"cdn"`											
+	Cdn            bool     `json:"cdn" form:"cdn"`
 	Sniffing       string   `json:"sniffing" form:"sniffing"`
 }
 

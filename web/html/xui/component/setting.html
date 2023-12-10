@@ -12,7 +12,7 @@
         </a-col>
         <a-col :lg="24" :xl="12">
             <template v-if="type === 'text'">
-                <a-input :value="value" @input="$emit('input', $event.target.value)"></a-input>
+                <a-input :value="value" @input="$emit('input', $event.target.value)" :placeholder="placeholder"></a-input>
             </template>
             <template v-else-if="type === 'number'">
                 <a-input-number :value="value" @change="value => $emit('input', value)" :min="min" :step="step" style="width: 100%;"></a-input-number>
@@ -28,7 +28,7 @@
 {{define "component/setting"}}
 <script>
     Vue.component('setting-list-item', {
-        props: ["type", "title", "desc", "value", "min", "step"],
+        props: ["type", "title", "desc", "value", "min", "step", "placeholder"],
         template: `{{template "component/settingListItem"}}`,
     });
 </script>

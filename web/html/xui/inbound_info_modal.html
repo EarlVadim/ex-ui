@@ -13,7 +13,7 @@
                 <tr><td>{{ i18n "protocol" }}</td><td><a-tag color="purple">[[ dbInbound.protocol ]]</a-tag></td></tr>
                 <tr><td>{{ i18n "pages.inbounds.address" }}</td><td><a-tag>[[ dbInbound.address ]]</a-tag></td></tr>
                 <tr><td>{{ i18n "pages.inbounds.port" }}</td><td><a-tag>[[ dbInbound.port ]]</a-tag></td></tr>
-				<tr><td>{{ i18n "pages.inbounds.extport" }}</td><td><a-tag color="green">[[ dbInbound.extport ]]</a-tag></td></tr>
+				<tr><td>{{ i18n "pages.inbounds.extport" }}</td><td><a-tag color="green">[[ dbInbound.extport ]]</a-tag></td></tr>																									  
             </table>
         </td>
         <td v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">
@@ -35,37 +35,36 @@
             </template>
             
             <template v-if="inbound.isQuic">
-                <tr><td>quic {{ i18n "encryption" }}</td><td><a-tag color="green">[[ inbound.quicSecurity ]]</a-tag></td></tr>
-                <tr><td>quic {{ i18n "password" }}</td><td><a-tag color="green">[[ inbound.quicKey ]]</a-tag></td></tr>
-                <tr><td>quic {{ i18n "camouflage" }}</td><td><a-tag color="green">[[ inbound.quicType ]]</a-tag></td></tr>
+                <tr><td>quic {{ i18n "encryption" }}</td><td><a-tag>[[ inbound.quicSecurity ]]</a-tag></td></tr>
+                <tr><td>quic {{ i18n "password" }}</td><td><a-tag>[[ inbound.quicKey ]]</a-tag></td></tr>
+                <tr><td>quic {{ i18n "camouflage" }}</td><td><a-tag>[[ inbound.quicType ]]</a-tag></td></tr>
             </template>
             
             <template v-if="inbound.isKcp">
-                <tr><td>kcp {{ i18n "encryption" }}</td><td><a-tag color="green">[[ inbound.kcpType ]]</a-tag></td></tr>
-                <tr><td>kcp {{ i18n "password" }}</td><td><a-tag color="green">[[ inbound.kcpSeed ]]</a-tag></td></tr>
+                <tr><td>kcp {{ i18n "encryption" }}</td><td><a-tag>[[ inbound.kcpType ]]</a-tag></td></tr>
+                <tr><td>kcp {{ i18n "password" }}</td><td><a-tag>[[ inbound.kcpSeed ]]</a-tag></td></tr>
             </template>
             
             <template v-if="inbound.isGrpc">
-                <tr><td>grpc serviceName</td><td><a-tag color="green">[[ inbound.serviceName ]]</a-tag></td></tr>
-                <tr><td>grpc multiMode</td><td><a-tag color="green">[[ inbound.stream.grpc.multiMode ]]</a-tag></td></tr>
+                <tr><td>grpc serviceName</td><td><a-tag>[[ inbound.serviceName ]]</a-tag></td></tr>
+                <tr><td>grpc multiMode</td><td><a-tag>[[ inbound.stream.grpc.multiMode ]]</a-tag></td></tr>
             </template>
             </table>
         </td></tr>
         <tr colspan="2" v-if="dbInbound.hasLink()">
-            <td v-if="inbound.tls">
-                tls: <a-tag color="green">{{ i18n "enabled" }}</a-tag><br />
-                tls {{ i18n "domainName" }}: <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : '' ]]</a-tag>
+            <td>
+                {{ i18n "security" }}
+                <a-tag :color="inbound.stream.security == 'none' ? 'red' : 'green'">[[ inbound.stream.security ]]</a-tag>
+                <br />
+                <template v-if="inbound.stream.security != 'none'">
+                {{ i18n "domainName" }}
+                <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : '' ]]</a-tag>
+                </template>
+				<template v-else-if="dbInbound.isCdn">
+				{{ "TLS: " }}
+				<a-tag color="cyan">{{ "cdn" }}</a-tag>             
+				</template>
             </td>
-            <td v-else-if="inbound.reality">
-                reality: <a-tag color="green">{{ i18n "enabled" }}</a-tag><br />
-                reality Destination: <a-tag :color="inbound.stream.reality.dest ? 'green' : 'orange'">[[ inbound.stream.reality.dest ]]</a-tag>
-            </td>
-			<td v-else-if="dbInbound.isCdn">
-			  <table>
-                  <tr><td>{{ "TLS: " }}</td><td><a-tag color="cyan">{{ "cdn+tls" }}</a-tag></td></tr> 
-              </table>				
-            </td>					   
-            <td v-else>tls: <a-tag color="red">{{ i18n "disabled" }}</a-tag></td>
         </tr>
     </table>
     <table v-if="dbInbound.isSS" style="margin-bottom: 10px; width: 100%;">
@@ -131,7 +130,7 @@
                     <a-tag v-if="infoModal.clientSettings.totalGB > 0" :color="statsColor(infoModal.clientStats)">
                         [[ sizeFormat(infoModal.clientSettings.totalGB) ]]
                     </a-tag>
-                    <a-tag v-else color="purple">{{ i18n "indefinite" }}</a-tag>
+                    <a-tag v-else color="purple" class="infinite-tag">&infin;</a-tag>
                 </td>
                 <td>
                     <template v-if="infoModal.clientSettings.expiryTime > 0">
@@ -140,7 +139,7 @@
                         </a-tag>
                     </template>
                     <a-tag v-else-if="infoModal.clientSettings.expiryTime < 0" color="cyan">[[ infoModal.clientSettings.expiryTime / -86400000 ]] {{ i18n "pages.client.days" }}</a-tag>
-                    <a-tag v-else color="purple">{{ i18n "indefinite" }}</a-tag>
+                    <a-tag v-else color="purple" class="infinite-tag">&infin;</a-tag>
                 </td>
             </tr>
         </table>
@@ -228,7 +227,7 @@
                 <td>{{ i18n "username" }}</td>
                 <td>{{ i18n "password" }}</td>
             </tr><tr v-for="account,index in inbound.settings.accounts">
-                <td><a-tag color="blue">[[ index ]]</a-tag></td>
+                <td>[[ index ]]</td>
                 <td><a-tag color="blue">[[ account.user ]]</a-tag></td>
                 <td><a-tag color="blue">[[ account.pass ]]</a-tag></td>
             </tr>
@@ -240,7 +239,7 @@
                 <th>{{ i18n "username" }}</th>
                 <th>{{ i18n "password" }}</th>
             </tr><tr v-for="account,index in inbound.settings.accounts">
-                <td><a-tag color="blue">[[ index ]]</a-tag></td>
+                <td>[[ index ]]</td>
                 <td><a-tag color="blue">[[ account.user ]]</a-tag></td>
                 <td><a-tag color="blue">[[ account.pass ]]</a-tag></td>
             </tr>
@@ -252,7 +251,6 @@
         visible: false,
         inbound: new Inbound(),
         dbInbound: new DBInbound(),
-        settings: null,
         clientSettings: null,
         clientStats: [],
         upStats: 0,
@@ -267,31 +265,14 @@
             this.index = index;
             this.inbound = dbInbound.toInbound();
             this.dbInbound = new DBInbound(dbInbound);
-            this.settings = JSON.parse(this.inbound.settings);
-            this.clientSettings = this.settings.clients ? Object.values(this.settings.clients)[index] : null;
-            this.isExpired = this.inbound.isExpiry(index);
-            this.clientStats = this.settings.clients ? this.dbInbound.clientStats.find(row => row.email === this.clientSettings.email) : [];
-            remark = [this.dbInbound.remark, ( this.clientSettings ? this.clientSettings.email : '')].filter(Boolean).join('-');
-			if (this.inbound.Cdn == true) {
-			  address = this.dbInbound.extlisten;
-			} else {
-              address = this.dbInbound.address;
-			}
-            this.links = [];
-            if (this.inbound.tls && !ObjectUtil.isArrEmpty(this.inbound.stream.tls.settings.domains)) {
-                this.inbound.stream.tls.settings.domains.forEach((domain) => {
-                    remarkText = [remark, domain.remark].filter(Boolean).join('-');
-                    this.links.push({
-                        remark: remarkText,
-                        link: this.inbound.genLink(domain.domain, remarkText, index)
-                    });
-                });
-            } else {
-                this.links.push({
-                    remark: remark,
-                    link: this.inbound.genLink(address, remark, index)
-                });
-            }
+            this.clientSettings = this.inbound.clients ? this.inbound.clients[index] : null;
+            this.isExpired = this.inbound.clients ? this.inbound.isExpiry(index): this.dbInbound.isExpiry;
+            this.clientStats = this.inbound.clients ? this.dbInbound.clientStats.find(row => row.email === this.clientSettings.email) : [];
+            this.links = this.inbound.genAllLinks(this.dbInbound.remark, app.remarkModel, this.clientSettings);
+
+			address = this.dbInbound.extlisten;
+			port = this.dbInbound.extport;
+				  
             if (this.clientSettings) {
                 if (this.clientSettings.subId) {
                     this.subLink = this.genSubLink(this.clientSettings.subId);
@@ -306,8 +287,7 @@
             infoModal.visible = false;
         },
         genSubLink(subID) {
-            const { domain: host, port, tls: isTLS, path: base } = app.subSettings;
-            return buildURL({ host, port, isTLS, base, path: subID+'?name='+subID });
+            return app.subSettings.subURI+subID+'?name='+subID;
         }
     };
 
