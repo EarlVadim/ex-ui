@@ -61,7 +61,7 @@
                 <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : '' ]]</a-tag>
                 </template>
 				<template v-else-if="dbInbound.isCdn">
-				{{ "TLS: " }}
+				{{ i18n "TLS" }}
 				<a-tag color="cyan">{{ "cdn" }}</a-tag>             
 				</template>
             </td>

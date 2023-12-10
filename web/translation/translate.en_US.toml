@@ -55,6 +55,7 @@
 "secAlertTitle" = "Security Alert"
 "secAlertSsl" = "This connection is not secure; Please refrain from entering sensitive information until TLS is activated for data protection"
 "security" = "Security"
+"TLS" = "TLS"
 
 [menu]
 "dashboard" = "System Status"
