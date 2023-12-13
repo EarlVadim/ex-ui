@@ -2,7 +2,7 @@
 ![](https://img.shields.io/github/v/release/EarlVadim/ex-ui.svg)
 [![Downloads](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)](https://img.shields.io/github/downloads/EarlVadim/ex-ui/total.svg)
 
-This fork of the panel from alireza0 version 1.6.0 is made specifically for the operation of inbonds via CDN on a single 443 port
+This fork of the panel from alireza0 version 1.6.1 is made specifically for the operation of inbonds via CDN on a single 443 port
 It correctly generates links to settings and subscriptions.
 
 Be sure to look at the settings in [WIKI](https://github.com/EarlVadim/ex-ui/wiki)

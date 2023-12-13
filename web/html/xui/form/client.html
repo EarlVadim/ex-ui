@@ -44,7 +44,14 @@
             </td>
         </tr>
         <tr v-if="client.email && app.subSettings.enable">
-            <td>Subscription <a-icon @click="client.subId = RandomUtil.randomLowerAndNum(16)" type="sync"></a-icon></td>
+            <td>Subscription
+                <a-tooltip>
+                    <template slot="title">
+                        <span>{{ i18n "pages.inbounds.subscriptionDesc" }}</span>
+                    </template>
+                    <a-icon @click="client.subId = RandomUtil.randomLowerAndNum(16)" type="sync"></a-icon>
+                </a-tooltip>
+            </td>
             <td>
                 <a-form-item>
                     <a-input v-model.trim="client.subId" style="width: 250px"></a-input>
@@ -52,7 +59,14 @@
             </td>
         </tr>
         <tr v-if="client.email && app.tgBotEnable">
-            <td>Telegram Username</td>
+            <td>Telegram ID
+                <a-tooltip>
+                    <template slot="title">
+                        <span>{{ i18n "pages.inbounds.telegramDesc" }}</span>
+                    </template>
+                    <a-icon type="question-circle" theme="filled"></a-icon>
+                </a-tooltip>
+            </td>
             <td>
                 <a-form-item>
                     <a-input v-model.trim="client.tgId" style="width: 250px"></a-input>
@@ -89,7 +103,7 @@
         <tr v-if="isEdit && clientStats">
             <td>{{ i18n "usage" }}</td>
             <td>
-                <a-tag :color="statsColor">
+                <a-tag :color="clientUsageColor(clientStats, app.trafficDiff)">
                     [[ sizeFormat(clientStats.up) ]] / 
                     [[ sizeFormat(clientStats.down) ]]
                     ([[ sizeFormat(clientStats.up + clientStats.down) ]])

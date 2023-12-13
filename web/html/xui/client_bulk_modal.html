@@ -70,7 +70,14 @@
                 </td>
             </tr>
             <tr v-if="app.subSettings.enable">
-                <td>Subscription</td>
+                <td>Subscription
+                    <a-tooltip>
+                        <template slot="title">
+                            <span>{{ i18n "pages.inbounds.subscriptionDesc" }}</span>
+                        </template>
+                        <a-icon @click="client.subId = RandomUtil.randomLowerAndNum(16)" type="sync"></a-icon>
+                    </a-tooltip>
+                </td>
                 <td>
                     <a-form-item>
                         <a-input v-model.trim="clientsBulkModal.subId" style="width: 250px"></a-input>
@@ -78,7 +85,14 @@
                 </td>
             </tr>
             <tr v-if="app.tgBotEnable">
-                <td>Telegram Username</td>
+                <td>Telegram ID
+                    <a-tooltip>
+                        <template slot="title">
+                            <span>{{ i18n "pages.inbounds.telegramDesc" }}</span>
+                        </template>
+                        <a-icon type="question-circle" theme="filled"></a-icon>
+                    </a-tooltip>
+                </td>
                 <td>
                     <a-form-item>
                         <a-input v-model.trim="clientsBulkModal.tgId" style="width: 250px"></a-input>

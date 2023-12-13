@@ -6,6 +6,9 @@
         .ant-layout-content {
             margin: 24px 16px;
         }
+		.ant-card-hoverable {
+            margin-inline: 0.3rem;
+        }
     }
 
     @media (max-width: 768px) {
@@ -60,6 +63,50 @@
                     >
                     </a-alert>
                 </transition>
+				<transition name="list" appear>
+                    <a-card hoverable>
+                        <a-row>
+                            <a-col :sm="24" :md="12">
+                                <a-row>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    :stroke-color="status.cpu.color"
+                                                    :percent="status.cpu.percent"></a-progress>
+                                        <div>CPU: ([[ status.cpuCount ]]core)</div>
+                                    </a-col>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    :stroke-color="status.mem.color"
+                                                    :percent="status.mem.percent"></a-progress>
+                                        <div>
+                                            {{ i18n "pages.index.memory"}}: [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
+                                        </div>
+                                    </a-col>
+                                </a-row>
+                            </a-col>
+                            <a-col :sm="24" :md="12">
+                                <a-row>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    :stroke-color="status.swap.color"
+                                                    :percent="status.swap.percent"></a-progress>
+                                        <div>
+                                            Swap: [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
+                                        </div>
+                                    </a-col>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    :stroke-color="status.disk.color"
+                                                    :percent="status.disk.percent"></a-progress>
+                                        <div>
+                                            {{ i18n "pages.index.hard"}}: [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
+                                        </div>
+                                    </a-col>
+                                </a-row>
+                            </a-col>
+                        </a-row>
+                    </a-card>
+            </transition>
                 <transition name="list" appear>
                     <a-card hoverable>
                         <a-row>
@@ -76,6 +123,10 @@
                                 <a-tag color="blue">[[ dbInbounds.length ]]</a-tag>
                             </a-col>
                             <a-col :xs="24" :sm="24" :lg="12">
+                                <template>
+                                    <div>
+                                        <a-back-top :target="() => document.getElementById('content-layout')" visibility-height="200">
+                                        </a-back-top>
                                 {{ i18n "clients" }}:
                                 <a-tag color="blue">[[ total.clients ]]</a-tag>
                                 <a-popover title='{{ i18n "disabled" }}' :overlay-class-name="themeSwitcher.currentTheme">
@@ -102,6 +153,8 @@
                                     </template>
                                     <a-tag color="green" v-if="onlineClients.length">[[ onlineClients.length ]]</a-tag>
                                 </a-popover>
+                                    </div>
+                                </template>
                             </a-col>
                         </a-row>
                     </a-card>
@@ -119,6 +172,10 @@
                                             <template v-if="!isMobile">{{ i18n "pages.inbounds.generalActions" }}</template>
                                         </a-button>
                                         <a-menu slot="overlay" @click="a => generalActions(a)" :theme="themeSwitcher.currentTheme">
+                                            <a-menu-item key="import">
+                                                <a-icon type="import"></a-icon>
+                                                {{ i18n "pages.inbounds.importInbound" }}
+                                            </a-menu-item>
                                             <a-menu-item key="export">
                                                 <a-icon type="export"></a-icon>
                                                 {{ i18n "pages.inbounds.export" }}
@@ -166,7 +223,7 @@
                                 <a-radio-button value="online">{{ i18n "online" }}</a-radio-button>
                             </a-radio-group>
                         </div>
-						<a-back-top></a-back-top>						 
+                        <a-back-top></a-back-top>
                         <a-table :columns="isMobile ? mobileColums : columns" :row-key="dbInbound => dbInbound.id"
                                  :data-source="searchedInbounds"
                                  :scroll="isMobile ? {} : { x: 1000 }"
@@ -220,6 +277,10 @@
                                         <a-menu-item key="resetTraffic">
                                             <a-icon type="retweet"></a-icon> {{ i18n "pages.inbounds.resetTraffic" }}
                                         </a-menu-item>
+                                        <a-menu-item key="clipboard">
+                                            <a-icon type="copy"></a-icon>
+                                            {{ i18n "pages.inbounds.copyToClipboard" }}
+                                        </a-menu-item>
                                         <a-menu-item key="clone">
                                             <a-icon type="block"></a-icon> {{ i18n "pages.inbounds.clone"}}
                                         </a-menu-item>
@@ -236,7 +297,7 @@
                                 </a-dropdown>
                             </template>
                             <template slot="protocol" slot-scope="text, dbInbound">
-							    <template v-if="dbInbound.isVLess || dbInbound.isTrojan"> 
+                                <template v-if="dbInbound.isVLess || dbInbound.isTrojan"> 
                                     <a-tag style="margin:0;" v-if="dbInbound.isVLess" color="yellow">[[ dbInbound.protocol ]]</a-tag>
 							    	<a-tag style="margin:0;" v-if="dbInbound.isTrojan" color="lime">[[ dbInbound.protocol ]]</a-tag>
 								</template>
@@ -247,7 +308,7 @@
                                     <a-tag style="margin:0;" color="blue">[[ dbInbound.toInbound().stream.network ]]</a-tag>
                                     <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isTls" color="green">tls</a-tag>
                                     <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isReality" color="green">reality</a-tag>
-									<a-tag style="margin:0;" v-if="dbInbound.isCdn" color="cyan">cdn+tls</a-tag>
+									<a-tag style="margin:0;" v-if="dbInbound.isCdn" color="cyan">cdn</a-tag>
                                 </template>
                             </template>
                             <template slot="clients" slot-scope="text, dbInbound">
@@ -334,7 +395,7 @@
                                                         <a-tag style="margin:0;" color="blue">[[ dbInbound.toInbound().stream.network ]]</a-tag>
                                                         <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isTls" color="green">tls</a-tag>
                                                         <a-tag style="margin:0;" v-if="dbInbound.toInbound().stream.isReality" color="green">reality</a-tag>
-														<a-tag style="margin:0;" v-if="dbInbound.isCdn" color="cyan">cdn+tsl</a-tag>   
+														<a-tag style="margin:0;" v-if="dbInbound.isCdn" color="cyan">cdn</a-tag>
                                                     </template>                    
                                                 </td>
                                             </tr>
@@ -435,6 +496,12 @@
     </a-layout>
 </a-layout>
 {{template "js" .}}
+<script src="{{ .base_path }}assets/base64/base64.min.js"></script>
+<script src="{{ .base_path }}assets/qrcode/qrious.min.js"></script>
+<script src="{{ .base_path }}assets/clipboard/clipboard.min.js"></script>
+<script src="{{ .base_path }}assets/uri/URI.min.js"></script>
+<script src="{{ .base_path }}assets/js/model/xray.js?{{ .cur_ver }}"></script>
+<script src="{{ .base_path }}assets/js/model/dbinbound.js?{{ .cur_ver }}"></script>
 {{template "component/themeSwitcher" .}}
 <script>
     const columns = [{
@@ -466,7 +533,7 @@
         title: '{{ i18n "pages.inbounds.extport" }}',
         align: 'center',
         dataIndex: "extport",
-        width: 40, 
+        width: 40,												 
     }, {
         title: '{{ i18n "pages.inbounds.protocol" }}',
         align: 'left',
@@ -526,6 +593,53 @@
         { title: '{{ i18n "pages.inbounds.client" }}', width: 90, align: 'left', scopedSlots: { customRender: 'client' } },
         { title: '{{ i18n "pages.inbounds.info" }}', width: 10, align: 'center', scopedSlots: { customRender: 'info' } },
     ];
+	
+	class CurTotal {
+
+        constructor(current, total) {
+            this.current = current;
+            this.total = total;
+        }
+
+        get percent() {
+            if (this.total === 0) {
+                return 0;
+            }
+            return toFixed(this.current / this.total * 100, 2);
+        }
+
+        get color() {
+            const percent = this.percent;
+            if (percent < 65) {
+                return '#0e49b5';
+            } else if (percent < 80) {
+                return '#ffa031';
+            } else {
+                return '#e04141';
+            }
+        }
+    }
+	
+	class Status {
+        constructor(data) {
+            this.cpu = new CurTotal(0, 0);
+            this.cpuCount = 0;
+            this.disk = new CurTotal(0, 0);
+            this.loads = [0, 0, 0];
+            this.mem = new CurTotal(0, 0);
+            this.swap = new CurTotal(0, 0);         
+
+            if (data == null) {
+                return;
+            }
+            this.cpu = new CurTotal(data.cpu, 100);
+            this.cpuCount = data.cpuCount;
+            this.disk = new CurTotal(data.disk.current, data.disk.total);
+            this.loads = data.loads.map(load => toFixed(load, 2));
+            this.mem = new CurTotal(data.mem.current, data.mem.total);            
+            this.swap = new CurTotal(data.swap.current, data.swap.total);            
+        }
+    }
 
     const app = new Vue({
         delimiters: ['[[', ']]'],
@@ -533,6 +647,7 @@
         data: {
             siderDrawer,
             themeSwitcher,
+			status: new Status(),
             spinning: false,
             inbounds: [],
             dbInbounds: [],
@@ -551,11 +666,9 @@
             refreshInterval: Number(localStorage.getItem("refreshInterval")) || 5000,
             subSettings: {
                 enable : false,
-                port: 0,
-                path: '',
-                domain: '',
-                tls: false
+                subURI : ''
             },
+            remarkModel: '-ieo',
             tgBotEnable: false,
             showAlert: false,
             pageSize: 0,
@@ -564,6 +677,15 @@
         methods: {
             loading(spinning = true) {
                 this.spinning = spinning;
+            },
+			async getStatus() {
+                const msg = await HttpUtil.post('/server/status');
+                if (msg.success) {
+                    this.setStatus(msg.obj);
+                }
+            },
+			setStatus(data) {
+                this.status = new Status(data);
             },
             async getDBInbounds() {
                 this.refreshing = true;
@@ -598,12 +720,10 @@
                     this.tgBotEnable = tgBotEnable;
                     this.subSettings = {
                         enable : subEnable,
-                        port: subPort,
-                        path: subPath,
-                        domain: subDomain,
-                        tls: subTLS
+                        subURI: subURI
                     };
                     this.pageSize = pageSize;
+                    this.remarkModel = remarkModel;
                 }
             },
             setInbounds(dbInbounds) {
@@ -630,7 +750,7 @@
             },
             getClientCounts(dbInbound, inbound) {
                 let clientCount = 0, active = [], deactive = [], depleted = [], expiring = [], online = [];
-                clients = this.getClients(dbInbound.protocol, inbound.settings);
+                clients = inbound.clients;
                 clientStats = dbInbound.clientStats
                 now = new Date().getTime()
                 if (clients) {
@@ -720,6 +840,9 @@
             },
             generalActions(action) {
                 switch (action.key) {
+                    case "import":
+                        this.importInbound();
+                        break;
                     case "export":
                         this.exportAllLinks();
                         break;
@@ -753,6 +876,9 @@
                         break;
                     case "export":
                         this.inboundLinks(dbInbound.id);
+                        break;
+                    case "clipboard":
+                        this.copyToClipboard(dbInbound.id);
                         break;
                     case "resetTraffic":
                         this.resetTraffic(dbInbound.id);
@@ -805,7 +931,7 @@
                 this.$confirm({
                     title: '{{ i18n "pages.inbounds.cloneInbound"}} \"' + dbInbound.remark + '\"',
                     content: '{{ i18n "pages.inbounds.cloneInboundContent"}}',
-                    okText: '{{ i18n "pages.inbounds.update"}}',
+                    okText: '{{ i18n "pages.inbounds.clone"}}',
                     class: themeSwitcher.currentTheme,
                     cancelText: '{{ i18n "cancel" }}',
                     onOk: () => {
@@ -827,11 +953,11 @@
 
                     listen: '',
                     port: RandomUtil.randomIntRange(10000, 60000),
-				    extlisten: '',
-                    extport: 443,
+					extlisten: '',
+                    extport: 443,			 
                     protocol: baseInbound.protocol,
                     settings: Inbound.Settings.getSettings(baseInbound.protocol).toString(),
-		    streamSettings: baseInbound.stream.toString(),
+		            streamSettings: baseInbound.stream.toString(),
                     sniffing: baseInbound.canSniffing() ? baseInbound.sniffing.toString() : '{}',
                 };
                 await this.submit('/xui/inbound/add', data, inModal);
@@ -849,11 +975,11 @@
                     port: inbound.port,
 					extlisten: inbound.extlisten,
                     extport: inbound.extport,
-					cdn: inbound.cdn,			  
+					cdn: inbound.cdn,						 
                     protocol: inbound.protocol,
                     settings: inbound.settings.toString(),
                 };
-				if (data.extport===0) data.extport = inbound.port;															
+				if (data.extport===0) data.extport = inbound.port;																			   
                 if (inbound.canEnableStream()) data.streamSettings = inbound.stream.toString();
                 if (inbound.canSniffing()) data.sniffing = inbound.sniffing.toString();
 
@@ -872,7 +998,7 @@
                     port: inbound.port,
 					extlisten: inbound.extlisten,
                     extport: inbound.extport,
-					cdn: inbound.cdn,		  
+					cdn: inbound.cdn,						 
                     protocol: inbound.protocol,
                     settings: inbound.settings.toString(),
                 };
@@ -950,7 +1076,7 @@
             resetTraffic(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.resetTraffic"}}',
+                    title: '{{ i18n "pages.inbounds.resetTraffic"}}' + ' #' + dbInboundId,
                     content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
                     class: themeSwitcher.currentTheme,
                     okText: '{{ i18n "reset"}}',
@@ -965,7 +1091,7 @@
             },
             delInbound(dbInboundId) {
                 this.$confirm({
-                    title: '{{ i18n "pages.inbounds.deleteInbound"}}',
+                    title: '{{ i18n "pages.inbounds.deleteInbound"}}' + ' #' + dbInboundId,
                     content: '{{ i18n "pages.inbounds.deleteInboundContent"}}',
                     class: themeSwitcher.currentTheme,
                     okText: '{{ i18n "delete"}}',
@@ -978,7 +1104,7 @@
                 clientId = this.getClientId(dbInbound.protocol, client);
                 if (confirmation){
                     this.$confirm({
-                        title: '{{ i18n "pages.inbounds.deleteClient"}}',
+                        title: '{{ i18n "pages.inbounds.deleteClient"}}' + ' ' + client.email,
                         content: '{{ i18n "pages.inbounds.deleteClientContent"}}',
                         class: themeSwitcher.currentTheme,
                         okText: '{{ i18n "delete"}}',
@@ -987,15 +1113,6 @@
                     });
                 } else {
                     this.submit(`/xui/inbound/${dbInboundId}/delClient/${clientId}`);
-                }
-            },
-            getClients(protocol, clientSettings) {
-                switch (protocol) {
-                    case Protocols.VMESS: return clientSettings.vmesses;
-                    case Protocols.VLESS: return clientSettings.vlesses;
-                    case Protocols.TROJAN: return clientSettings.trojans;
-                    case Protocols.SHADOWSOCKS: return clientSettings.shadowsockses;
-                    default: return null;
                 }
             },
             getClientId(protocol, client) {
@@ -1009,7 +1126,7 @@
                 newDbInbound = new DBInbound(dbInbound);
                 if (dbInbound.listen.startsWith("@")){
                     rootInbound = this.inbounds.find((i) => 
-                        i.tls && 
+                        i.isTcp && 
                         ['trojan','vless'].includes(i.protocol) &&
                         i.settings.fallbacks.find(f => f.dest === dbInbound.listen)
                     );
@@ -1018,10 +1135,11 @@
                         newDbInbound.port = rootInbound.port;
 						newDbInbound.extlisten = rootInbound.extlisten;
                         newDbInbound.extport = rootInbound.extport;
-						newDbInbound.cdn = rootInbound.cdn;
+						newDbInbound.cdn = rootInbound.cdn;							 
                         newInbound = newDbInbound.toInbound();
-                        newInbound.stream.security = 'tls';
+                        newInbound.stream.security = rootInbound.stream.security;
                         newInbound.stream.tls = rootInbound.stream.tls;
+                        newInbound.stream.externalProxy = rootInbound.stream.externalProxy;
                         newDbInbound.streamSettings = newInbound.stream.toString();
                     }
                 }
@@ -1029,18 +1147,15 @@
             },
             showQrcode(dbInboundId, client) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
-                inbound = dbInbound.toInbound();
-                clients = this.getClients(dbInbound.protocol, inbound.settings);
-                index = this.findIndexOfClient(dbInbound.protocol, clients, client);
                 newDbInbound = this.checkFallback(dbInbound);
-                qrModal.show('{{ i18n "qrCode"}}', newDbInbound, index);
+                qrModal.show('{{ i18n "qrCode"}}', newDbInbound, client);
             },
             showInfo(dbInboundId, client) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 index=0;
                 if (dbInbound.isMultiUser()){
                     inbound = dbInbound.toInbound();
-                    clients = this.getClients(dbInbound.protocol, inbound.settings);
+                    clients = inbound.clients;
                     index = this.findIndexOfClient(dbInbound.protocol, clients, client);
                 }
                 newDbInbound = this.checkFallback(dbInbound);
@@ -1054,7 +1169,7 @@
                 this.loading()
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 inbound = dbInbound.toInbound();
-                clients = this.getClients(dbInbound.protocol, inbound.settings);
+                clients = inbound.clients;
                 index = this.findIndexOfClient(dbInbound.protocol, clients, client);
                 clients[index].enable = !clients[index].enable;
                 clientId = this.getClientId(dbInbound.protocol, clients[index]);
@@ -1068,20 +1183,12 @@
                 }
             },
             getInboundClients(dbInbound) {
-                if (dbInbound.protocol == Protocols.VLESS) {
-                    return dbInbound.toInbound().settings.vlesses;
-                } else if (dbInbound.protocol == Protocols.VMESS) {
-                    return dbInbound.toInbound().settings.vmesses;
-                } else if (dbInbound.protocol == Protocols.TROJAN) {
-                    return dbInbound.toInbound().settings.trojans;
-                } else if (dbInbound.protocol == Protocols.SHADOWSOCKS) {
-                    return dbInbound.toInbound().settings.shadowsockses;
-                }
+                return dbInbound.toInbound().clients;
             },
             resetClientTraffic(client, dbInboundId, confirmation = true) {
                 if (confirmation){
                     this.$confirm({
-                        title: '{{ i18n "pages.inbounds.resetTraffic"}}',
+                        title: '{{ i18n "pages.inbounds.resetTraffic"}}' + ' ' + client.email,
                         content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
                         class: themeSwitcher.currentTheme,
                         okText: '{{ i18n "reset"}}',
@@ -1144,22 +1251,13 @@
                 if (email.length == 0) return 0;
                 clientStats = dbInbound.clientStats.find(stats => stats.email === email);
                 if (!clientStats) return 0;
-                remained = clientStats.totalGB - (clientStats.up + clientStats.down);
+                remained = clientStats.total - (clientStats.up + clientStats.down);
                 return remained>0 ? remained : 0;
             },
-            statsColor(dbInbound, email) {
-                if (email.length == 0) return '#0e49b5';
+            clientStatsColor(dbInbound, email) {
+                if (email.length == 0) return clientUsageColor();
                 clientStats = dbInbound.clientStats.find(stats => stats.email === email);
-                switch (true) {
-                    case !clientStats:
-                        return "#0e49b5";
-                    case clientStats.up + clientStats.down < clientStats.total - app.trafficDiff:
-                        return "#0e49b5";
-                    case clientStats.up + clientStats.down < clientStats.total:
-                        return "#FFA031";
-                    default:
-                        return "#E04141";
-                }
+                return clientUsageColor(clientStats, app.trafficDiff)
             },
             statsProgress(dbInbound, email) {
                 if (email.length == 0) return 100;
@@ -1212,14 +1310,43 @@
             inboundLinks(dbInboundId) {
                 dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
                 newDbInbound = this.checkFallback(dbInbound);
-                txtModal.show('{{ i18n "pages.inbounds.export"}}', newDbInbound.genInboundLinks, newDbInbound.remark);
+                txtModal.show('{{ i18n "pages.inbounds.export"}}', newDbInbound.genInboundLinks(this.remarkModel), newDbInbound.remark);
+            },
+            importInbound() {
+                promptModal.open({
+                    title: '{{ i18n "pages.inbounds.importInbound" }}',
+                    type: 'textarea',
+                    value: '',
+                    okText: '{{ i18n "pages.inbounds.import" }}',
+                    confirm: async (dbInboundText) => {
+                        await this.submit('/xui/inbound/import', {data: dbInboundText}, promptModal);
+                        promptModal.close();
+                    },
+                });
             },
 			exportAllLinks() {
-                let copyText = '';
+                let copyText = [];
                 for (const dbInbound of this.dbInbounds) {
-                    copyText += dbInbound.genInboundLinks;
+                    copyText.push(dbInbound.genInboundLinks(this.remarkModel));
                 }
-                txtModal.show('{{ i18n "pages.inbounds.export"}}', copyText, 'All-Inbounds');
+                txtModal.show('{{ i18n "pages.inbounds.export"}}', copyText.join('\r\n'), 'All-Inbounds');
+            },
+            copyToClipboard(dbInboundId) {
+                dbInbound = this.dbInbounds.find(row => row.id === dbInboundId);
+                txtModal.show('{{ i18n "pages.inbounds.inboundData" }}', JSON.stringify(dbInbound, null, 2));
+            },
+			async mountedStatus() {
+              if (window.location.protocol !== "https:") {
+                this.showAlert = true;
+              }
+              while (true) {
+                try {
+                    await this.getStatus();
+                } catch (e) {
+                    console.error(e);
+                }
+                await PromiseUtil.sleep(2000);
+              }
             },
             async startDataRefreshLoop() {
                 while (this.isRefreshEnabled) {
@@ -1235,6 +1362,7 @@
                 localStorage.setItem("isRefreshEnabled", this.isRefreshEnabled);
                 if (this.isRefreshEnabled) {
                     this.startDataRefreshLoop();
+					this.mountedStatus();
                 }
             },
             changeRefreshInterval() {
@@ -1287,6 +1415,7 @@
             this.getDefaultSettings();
             if (this.isRefreshEnabled) {
                 this.startDataRefreshLoop();
+				this.mountedStatus();
             }
             else {
                 this.getDBInbounds();

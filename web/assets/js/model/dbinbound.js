@@ -42,10 +42,10 @@ class DBInbound {
     get isVLess() {
         return this.protocol === Protocols.VLESS;
     }
-    
 	get isCdn() {
         return this.cdn === true;
     }
+
     get isTrojan() {
         return this.protocol === Protocols.TROJAN;
     }
@@ -108,14 +108,14 @@ class DBInbound {
         const config = {
             port: this.port,
             listen: this.listen,
-            extport: this.extport,
+			extport: this.extport,
             extlisten: this.extlisten,
             protocol: this.protocol,
             settings: settings,
             streamSettings: streamSettings,
             tag: this.tag,
 			cdn: this.cdn,
-            sniffing: sniffing,			
+            sniffing: sniffing,
             clientStats: this.clientStats,
         };
         return Inbound.fromJson(config);
@@ -145,14 +145,9 @@ class DBInbound {
                 return false;
         }
     }
-
-    genLink(address=this.address, remark=this.remark, clientIndex=0) {
-        const inbound = this.toInbound();
-        return inbound.genLink(address, remark, clientIndex);
-    }
     
-	get genInboundLinks() {
+	genInboundLinks(remarkModel) {
         const inbound = this.toInbound();
-        return inbound.genInboundLinks(this.address, this.remark);
+        return inbound.genInboundLinks(this.remark,remarkModel);
     }
 }

@@ -99,7 +99,17 @@ else
 fi
 sleep 3
 if [[ ! -f "/etc/letsencrypt/live/${SubDomain}.${MainDomain}/privkey.pem" ]]; then
-	msg_err "$SubDomai}.$MainDomain SSL certificate could not be generated, Maybe the domain or IP domain is invalid!" && exit 1
+	msg_err "$SubDomain.$MainDomain SSL certificate could not be generated, Maybe the domain or IP domain is invalid!" && exit 1
+fi
+
+if [[ ! -f "/etc/letsencrypt/live/$sub.${MainDomain}/privkey.pem" ]]; then
+	certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email --cert-name "sub.$MainDomain" -d "$domain"
+else
+	msg_ok "sub.$MainDomain SSL Certificate is exist!"
+fi
+sleep 3
+if [[ ! -f "/etc/letsencrypt/live/sub.${MainDomain}/privkey.pem" ]]; then
+	msg_err "sub.$MainDomain SSL certificate could not be generated, Maybe the domain or IP domain is invalid!" && exit 1
 fi
 
 cat > "/etc/nginx/sites-available/$MainDomain" << EOF
@@ -199,6 +209,7 @@ listen front
  use_backend CDN if { req.ssl_sni -m end $SubDomain.$MainDomain }
  use_backend REALITY_TROJAN if { req.ssl_sni -m end trojan.$MainDomain }
  use_backend REALITY_VLESS if { req.ssl_sni -m end vless.$MainDomain }
+ use_backend SUBS if { req.ssl_sni -m end sub.$MainDomain }
 
 
 backend CDN
@@ -212,6 +223,10 @@ backend REALITY_VLESS
 backend REALITY_TROJAN
  mode tcp
  server srv1 127.0.0.1:23443
+ 
+backend SUBS
+ mode tcp
+ server srv1 127.0.0.1:2096
 EOF
 ###################################Enable Site###############################
 if [[ -f "/etc/nginx/sites-available/$MainDomain" ]]; then
@@ -276,11 +291,12 @@ if systemctl is-active --quiet x-ui && [[ $XUIPORT -eq $PORT ]]; then clear
 	nginx -T | grep -i 'ssl_certificate\|ssl_certificate_key'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 	certbot certificates | grep -i 'Path:\|Domains:\|Expiry Date:'
-	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-	msg_inf "\nTo use the VLESS+reality, create the vless.${MainDomain} in DNS-only mode        "
-	msg_inf "To use the TROJAN+reality, create the trojan.${MainDomain} in DNS-only mode        "
-	msg_inf "\nX-UI Admin Panel: https://${domain}/${RNDSTR}/\n"
-	msg_inf "  Login  | Password"
+	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n"
+	msg_inf "To use the VLESS+reality,  create the vless.${MainDomain} in DNS-only mode     "
+	msg_inf "To use the TROJAN+reality, create the trojan.${MainDomain} in DNS-only mode    "
+	msg_inf "But you can change it with command 'nano /etc/haproxy/haproxy.cfg'             \n"
+	msg_inf "\nEX-UI Admin Panel: https://${domain}/${RNDSTR}/\n"
+	msg_inf " Login | Password"
 	sqlite3 -batch $XUIDB 'SELECT "username","password" FROM users;'
 	msg_inf "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
 else

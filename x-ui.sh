@@ -612,9 +612,299 @@ ssl_cert_issue_CF() {
     fi
 }
 
+update_geo_files() {
+echo -e "${green} ------------------------- "
+echo -e "${yellow} Advanced Geo System Updater Select Update Server "
+echo -e "${green}\t1.${plain} Github [Default] "
+echo -e "${green}\t2.${plain} jsDelivr CDN "
+echo -e "${green}\t0.${plain} Back To X-UI Menu "
+read -p "Select an option: " select
+
+case "$select" in
+    0) show_menu ;;
+    1|2)
+        local="/usr/local/x-ui/bin"
+        source_mapping=()
+        if [ "$select" -eq 1 ]; then
+            source_mapping=(
+                "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat geoip.dat"
+                "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat geosite.dat"
+                "https://github.com/chocolate4u/Iran-v2ray-rules/releases/latest/download/geoip.dat geoip_IR.dat"
+                "https://github.com/chocolate4u/Iran-v2ray-rules/releases/latest/download/geosite.dat geosite_IR.dat"
+                "https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat iran.dat"
+            )
+        elif [ "$select" -eq 2 ]; then
+            source_mapping=(
+                "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat geoip.dat"
+                "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat geosite.dat"
+                "https://cdn.jsdelivr.net/gh/chocolate4u/Iran-v2ray-rules@release/geoip.dat geoip_IR.dat"
+                "https://cdn.jsdelivr.net/gh/chocolate4u/Iran-v2ray-rules@release/geosite.dat geosite_IR.dat"
+                "https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat iran.dat"
+            )
+        fi
+        mkdir -p "$local" && chmod 764 "$local"
+        updated_files=()
+        function needs_update() {
+            local source="$1"
+            local destination="$2"
+
+            [ ! -e "$destination" ] || [ "$(wget -q --spider --no-check-certificate --timestamping "$source" && stat -c %Y "$destination")" != "$(stat -c %Y "$destination")" ]
+        }
+
+        for pair in "${source_mapping[@]}"; do
+            output_file="${local}/$(echo "$pair" | cut -d ' ' -f 2)"
+
+            if needs_update "$(echo "$pair" | cut -d ' ' -f 1)" "$output_file"; then
+                echo "Downloading $output_file..."
+                wget -q --no-check-certificate --timestamping --show-progress -O "$output_file" "$(echo "$pair" | cut -d ' ' -f 1)"
+                chmod 644 "$output_file"
+                updated_files+=("$output_file")
+            else
+                echo "$output_file is already up to date. No need to update."  
+            fi
+        done
+        echo -e "\n---------------------------"
+        echo -e "      Summary Report       "
+        echo -e "---------------------------"
+		
+        if [ ${#updated_files[@]} -gt 0 ]; then
+            echo -e "Number of Downloaded files: ${#updated_files[@]}"
+            echo "Downloaded files:"
+            for file in "${updated_files[@]}"; do
+                echo "  - $file"
+            done																
+        else
+            echo -e "\nNo files were updated."
+        fi
+
+        echo -e "---------------------------"
+        sleep 1
+        read -p "Do you want to restart x-ui? (y/n): " restart_choice
+        if [[ $restart_choice == [Yy] ]]; then
+            systemctl restart x-ui
+            echo "X-UI has been restarted."
+        else
+            echo "X-UI was not restarted."
+        fi
+        before_show_menu
+        ;;
+    *)
+        LOGE "Please enter the correct number [0-2]"
+        update_geo_files
+        ;;
+esac
+
+}
+
+create_iplimit_jails() {
+    # Use default bantime if not passed => 5 minutes
+    local bantime="${1:-5}"
+
+    cat << EOF > /etc/fail2ban/jail.d/3x-ipl.conf
+[3x-ipl]
+enabled=true
+filter=3x-ipl
+action=3x-ipl
+logpath=${iplimit_log_path}
+maxretry=4
+findtime=60
+bantime=${bantime}m
+EOF
+
+    cat << EOF > /etc/fail2ban/filter.d/3x-ipl.conf
+[Definition]
+datepattern = ^%%Y/%%m/%%d %%H:%%M:%%S
+failregex   = \[LIMIT_IP\]\s*Email\s*=\s*<F-USER>.+</F-USER>\s*\|\|\s*SRC\s*=\s*<ADDR>
+ignoreregex =
+EOF
+
+    cat << EOF > /etc/fail2ban/action.d/3x-ipl.conf
+[INCLUDES]
+before = iptables-common.conf
+
+[Definition]
+actionstart = <iptables> -N f2b-<name>
+              <iptables> -A f2b-<name> -j <returntype>
+              <iptables> -I <chain> -p <protocol> -j f2b-<name>
+
+actionstop = <iptables> -D <chain> -p <protocol> -j f2b-<name>
+             <actionflush>
+             <iptables> -X f2b-<name>
+
+actioncheck = <iptables> -n -L <chain> | grep -q 'f2b-<name>[ \t]'
+
+actionban = <iptables> -I f2b-<name> 1 -s <ip> -j <blocktype>
+            echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   BAN   [Email] = <F-USER> [IP] = <ip> banned for <bantime> seconds." >> ${iplimit_banned_log_path}
+
+actionunban = <iptables> -D f2b-<name> -s <ip> -j <blocktype>
+              echo "\$(date +"%%Y/%%m/%%d %%H:%%M:%%S")   UNBAN   [Email] = <F-USER> [IP] = <ip> unbanned." >> ${iplimit_banned_log_path}
+
+[Init]
+EOF
+
+    echo -e "${green}Created Ip Limit jail files with a bantime of ${bantime} minutes.${plain}"
+}
+
+iplimit_remove_conflicts() {
+    local jail_files=(
+        /etc/fail2ban/jail.conf
+        /etc/fail2ban/jail.local
+    )
+
+    for file in "${jail_files[@]}"; do
+        # Check for [3x-ipl] config in jail file then remove it
+        if test -f "${file}" && grep -qw '3x-ipl' ${file}; then
+            sed -i "/\[3x-ipl\]/,/^$/d" ${file}
+            echo -e "${yellow}Removing conflicts of [3x-ipl] in jail (${file})!${plain}\n"
+        fi
+    done
+}
+
+iplimit_main() {
+    echo -e "\n${green}\t1.${plain} Install Fail2ban and configure IP Limit"
+    echo -e "${green}\t2.${plain} Change Ban Duration"
+    echo -e "${green}\t3.${plain} Unban Everyone"
+    echo -e "${green}\t4.${plain} Check Logs"
+    echo -e "${green}\t5.${plain} fail2ban status"
+    echo -e "${green}\t6.${plain} Uninstall IP Limit"
+    echo -e "${green}\t0.${plain} Back to Main Menu"
+    read -p "Choose an option: " choice
+    case "$choice" in
+        0)
+            show_menu ;;
+        1)
+            confirm "Proceed with installation of Fail2ban & IP Limit?" "y"
+            if [[ $? == 0 ]]; then
+                install_iplimit
+            else
+                iplimit_main
+            fi ;;
+        2)
+            read -rp "Please enter new Ban Duration in Minutes [default 5]: " NUM
+            if [[ $NUM =~ ^[0-9]+$ ]]; then
+                create_iplimit_jails ${NUM}
+                systemctl restart fail2ban
+            else
+                echo -e "${red}${NUM} is not a number! Please, try again.${plain}"
+            fi
+            iplimit_main ;;
+        3)
+            confirm "Proceed with Unbanning everyone from IP Limit jail?" "y"
+            if [[ $? == 0 ]]; then
+                fail2ban-client reload --restart --unban 3x-ipl
+                echo -e "${green}All users Unbanned successfully.${plain}"
+                iplimit_main
+            else
+                echo -e "${yellow}Cancelled.${plain}"
+            fi
+            iplimit_main ;;
+        4)
+            show_banlog
+            ;;
+        5)
+            service fail2ban status
+            ;;
+
+        6)
+            remove_iplimit ;;
+        *) echo "Invalid choice" ;;
+    esac
+}
+
+install_iplimit() {
+    if ! command -v fail2ban-client &>/dev/null; then
+        echo -e "${green}Fail2ban is not installed. Installing now...!${plain}\n"
+        # Check the OS and install necessary packages
+        case "${release}" in
+            ubuntu|debian)
+                apt update && apt install fail2ban -y ;;
+            centos)
+                yum -y update && yum -y install fail2ban ;;
+            fedora)
+                dnf -y update && dnf -y install fail2ban ;;
+            *)
+                echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
+                exit 1 ;;
+        esac
+        echo -e "${green}Fail2ban installed successfully!${plain}\n"
+    else
+        echo -e "${yellow}Fail2ban is already installed.${plain}\n"
+    fi
+
+    echo -e "${green}Configuring IP Limit...${plain}\n"
+
+    # make sure there's no conflict for jail files
+    iplimit_remove_conflicts
+
+    # Check if log file exists
+    if ! test -f "${iplimit_banned_log_path}"; then
+        touch ${iplimit_banned_log_path}
+    fi
+
+    # Check if service log file exists so fail2ban won't return error
+    if ! test -f "${iplimit_log_path}"; then
+        touch ${iplimit_log_path}
+    fi
+
+    # Create the iplimit jail files
+    # we didn't pass the bantime here to use the default value
+    create_iplimit_jails
+
+    # Launching fail2ban
+    if ! systemctl is-active --quiet fail2ban; then
+        systemctl start fail2ban
+    else
+        systemctl restart fail2ban
+    fi
+    systemctl enable fail2ban
+
+    echo -e "${green}IP Limit installed and configured successfully!${plain}\n"
+    before_show_menu
+}
+
+remove_iplimit(){
+    echo -e "${green}\t1.${plain} Only remove IP Limit configurations"
+    echo -e "${green}\t2.${plain} Uninstall Fail2ban and IP Limit"
+    echo -e "${green}\t0.${plain} Abort"
+    read -p "Choose an option: " num
+    case "$num" in
+        1) 
+            rm -f /etc/fail2ban/filter.d/3x-ipl.conf
+            rm -f /etc/fail2ban/action.d/3x-ipl.conf
+            rm -f /etc/fail2ban/jail.d/3x-ipl.conf
+            systemctl restart fail2ban
+            echo -e "${green}IP Limit removed successfully!${plain}\n"
+            before_show_menu ;;
+        2)  
+            rm -rf /etc/fail2ban
+            systemctl stop fail2ban
+            case "${release}" in
+                ubuntu|debian)
+                    apt-get purge fail2ban -y;;
+                centos)
+                    yum remove fail2ban -y;;
+                fedora)
+                    dnf remove fail2ban -y;;
+                *)
+                    echo -e "${red}Unsupported operating system. Please uninstall Fail2ban manually.${plain}\n"
+                    exit 1 ;;
+            esac
+            echo -e "${green}Fail2ban and IP Limit removed successfully!${plain}\n"
+            before_show_menu ;;
+        0) 
+            echo -e "${yellow}Cancelled.${plain}\n"
+            iplimit_main ;;
+        *) 
+            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            remove_iplimit ;;
+    esac
+}
+
+
 show_usage() {
-    echo "x-ui control menu usages: "
-    echo "------------------------------------------"
+    echo "EX-UI Control Menu Usage: "
+    echo "------------------------------------------"						
+	echo "SUBCOMMANDS:" 					
     echo "x-ui              - Enter     Admin menu"
     echo "x-ui start        - Start     x-ui"
     echo "x-ui stop         - Stop      x-ui"
@@ -626,38 +916,43 @@ show_usage() {
     echo "x-ui update       - Update    x-ui"
     echo "x-ui install      - Install   x-ui"
     echo "x-ui uninstall    - Uninstall x-ui"
+	echo "x-ui help         - Control menu usage"
+												 
     echo "------------------------------------------"
 }
 
 show_menu() {
     echo -e "
-  ${green}x-ui Panel Management Script${plain}
-  ${green}0.${plain} exit script
+  ${green}EX-UI Admin Management Script${plain}
+  ${green}0.${plain} Exit
 ————————————————
-  ${green}1.${plain} Install x-ui
-  ${green}2.${plain} Update x-ui
-  ${green}3.${plain} Uninstall x-ui
+  ${green}1.${plain} Install EX-UI
+  ${green}2.${plain} Update EX-UI
+  ${green}3.${plain} Uninstall EX-UI
 ————————————————
   ${green}4.${plain} Reset username and password
   ${green}5.${plain} Reset panel settings
   ${green}6.${plain} Set panel port
   ${green}7.${plain} View current panel settings
 ————————————————
-  ${green}8.${plain} Start x-ui
-  ${green}9.${plain} Stop x-ui
-  ${green}10.${plain} Reboot x-ui
-  ${green}11.${plain} Check x-ui state
-  ${green}12.${plain} Check x-ui logs
+  ${green}8.${plain} Start EX-UI
+  ${green}9.${plain} Stop EX-UI
+  ${green}10.${plain} Reboot EX-UI
+  ${green}11.${plain} Check EX-UI state
+  ${green}12.${plain} Check EX-UI logs
 ————————————————
-  ${green}13.${plain} Set x-ui Autostart
-  ${green}14.${plain} Cancel x-ui Autostart
+  ${green}13.${plain} Set EX-UI Autostart
+  ${green}14.${plain} Cancel EX-UI Autostart
 ————————————————
-  ${green}15.${plain} 一A key installation bbr (latest kernel)
-  ${green}16.${plain} 一SSL Certificate Management
-  ${green}17.${plain} 一Cloudflare SSL Certificate
+  ${green}15.${plain} A key installation BBR (latest kernel)
+  ${green}16.${plain} SSL Certificate Management
+  ${green}17.${plain} Cloudflare SSL Certificate
+————————————————
+  ${green}18.${plain} Advanced Geo Updater
+  ${green}19.${plain} IP Limit Management
  "
     show_status
-    echo && read -p "Please enter your selection [0-17]: " num
+    echo && read -p "Please enter your selection [0-19]: " num
 
     case "${num}" in
     0)
@@ -714,8 +1009,14 @@ show_menu() {
     17)
         ssl_cert_issue_CF
         ;;
+	18)
+        update_geo_files
+        ;;
+	19)
+        iplimit_main
+        ;;
     *)
-        LOGE "Please enter the correct number [0-16]"
+        LOGE "Please enter the correct number [0-19]"
         ;;
     esac
 }

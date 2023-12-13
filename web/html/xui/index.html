@@ -85,8 +85,11 @@
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
                             X-UI: <a href="https://github.com/EarlVadim/ex-ui/releases" target="_blank"><a-tag color="blue">{{ .cur_ver }}</a-tag></a>
-                            Xray: <a-tag color="blue" style="cursor: pointer;" @click="openSelectV2rayVersion">[[ status.xray.version ]]</a-tag>
-							<a href="https://t.me/panel3xui" target="_blank"><a-tag color="blue">@panel3xui</a-tag></a>
+                            Xray:
+                            <a-tooltip title='{{ i18n "pages.index.xraySwitch" }}'>
+                                <a-tag color="blue" style="cursor: pointer;" @click="openSelectV2rayVersion">[[ status.xray.version ]]</a-tag>
+							<a href="https://t.me/panel3xui" target="_blank"><a-tag color="blue">@panel3xui</a-tag></a>	
+                            </a-tooltip>
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
@@ -116,7 +119,6 @@
                             </a-tooltip>
                             <a-tag color="purple" style="cursor: pointer;" @click="stopXrayService">{{ i18n "pages.index.stopXray" }}</a-tag>
                             <a-tag color="purple" style="cursor: pointer;" @click="restartXrayService">{{ i18n "pages.index.restartXray" }}</a-tag>                    
-                            <a-tag color="purple" style="cursor: pointer;" @click="openSelectV2rayVersion">{{ i18n "pages.index.xraySwitch" }}</a-tag>
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
@@ -163,13 +165,26 @@
                     </a-col>
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
-                            {{ i18n "pages.index.connectionCount" }}: TCP: [[ status.tcpCount ]]  UDP: [[ status.udpCount ]]
-                            <a-tooltip>
-                                <template slot="title">
-                                    {{ i18n "pages.index.connectionCountDesc" }}
-                                </template>
-                                <a-icon type="question-circle" theme="filled"></a-icon>
-                            </a-tooltip>
+                            <a-row>
+                                <a-col :span="12">
+                                    TCP:  [[ status.tcpCount ]]
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            {{ i18n "pages.index.connectionTcpCountDesc" }}
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                                <a-col :span="12">
+                                    UDP:  [[ status.udpCount ]]
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            {{ i18n "pages.index.connectionUdpCountDesc" }}
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                            </a-row>
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
@@ -282,8 +297,7 @@
                 </a-button>
             </a-form-item>
        </a-form>
-        <a-input type="textarea" v-model="logModal.logs" disabled="true"
-                :autosize="{ minRows: 10, maxRows: 22}"></a-input>
+        <div v-model="logModal.logs" class="ant-input" style="height: 400px; overflow: scroll;"><pre>[[ logModal.logs ]]</pre></div>
     </a-modal>
 
     <a-modal id="backup-modal" v-model="backupModal.visible" :title="backupModal.title"
@@ -306,10 +320,10 @@
 
 </a-layout>
 {{template "js" .}}
+<script src="{{ .base_path }}assets/clipboard/clipboard.min.js"></script>
 {{template "component/themeSwitcher" .}}
 {{template "textModal"}}
 <script>
-
     const State = {
         Running: "running",
         Stop: "stop",
@@ -333,9 +347,9 @@
 
         get color() {
             const percent = this.percent;
-            if (percent < 80) {
+            if (percent < 65) {
                 return '#0e49b5';
-            } else if (percent < 90) {
+            } else if (percent < 80) {
                 return '#ffa031';
             } else {
                 return '#e04141';

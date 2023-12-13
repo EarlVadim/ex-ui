@@ -25,6 +25,7 @@ type AllSetting struct {
 	PageSize         int    `json:"pageSize" form:"pageSize"`
 	ExpireDiff       int    `json:"expireDiff" form:"expireDiff"`
 	TrafficDiff      int    `json:"trafficDiff" form:"trafficDiff"`
+	RemarkModel      string `json:"remarkModel" form:"remarkModel"`
 	TgBotEnable      bool   `json:"tgBotEnable" form:"tgBotEnable"`
 	TgBotToken       string `json:"tgBotToken" form:"tgBotToken"`
 	TgBotChatId      string `json:"tgBotChatId" form:"tgBotChatId"`
@@ -44,6 +45,7 @@ type AllSetting struct {
 	SubUpdates       int    `json:"subUpdates" form:"subUpdates"`
 	SubEncrypt       bool   `json:"subEncrypt" form:"subEncrypt"`
 	SubShowInfo      bool   `json:"subShowInfo" form:"subShowInfo"`
+	SubURI           string `json:"subURI" form:"subURI"`
 }
 
 func (s *AllSetting) CheckValid() error {
@@ -92,6 +94,13 @@ func (s *AllSetting) CheckValid() error {
 	}
 	if !strings.HasSuffix(s.WebBasePath, "/") {
 		s.WebBasePath += "/"
+	}
+
+	if !strings.HasPrefix(s.SubPath, "/") {
+		s.SubPath = "/" + s.SubPath
+	}
+	if !strings.HasSuffix(s.SubPath, "/") {
+		s.SubPath += "/"
 	}
 
 	_, err := time.LoadLocation(s.TimeLocation)
