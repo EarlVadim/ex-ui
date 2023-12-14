@@ -102,7 +102,7 @@ if [[ ! -f "/etc/letsencrypt/live/${SubDomain}.${MainDomain}/privkey.pem" ]]; th
 	msg_err "$SubDomain.$MainDomain SSL certificate could not be generated, Maybe the domain or IP domain is invalid!" && exit 1
 fi
 
-if [[ ! -f "/etc/letsencrypt/live/$sub.${MainDomain}/privkey.pem" ]]; then
+if [[ ! -f "/etc/letsencrypt/live/sub.${MainDomain}/privkey.pem" ]]; then
 	certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email --cert-name "sub.$MainDomain" -d "$domain"
 else
 	msg_ok "sub.$MainDomain SSL Certificate is exist!"
@@ -245,10 +245,16 @@ if [[ -f $XUIDB ]]; then
 	DELETE FROM "settings" WHERE "key"="webCertFile";
 	DELETE FROM "settings" WHERE "key"="webKeyFile";
 	DELETE FROM "settings" WHERE "key"="webBasePath";
+	DELETE FROM "settings" WHERE "key"="subCertFile";
+	DELETE FROM "settings" WHERE "key"="subKeyFile";
+	DELETE FROM "settings" WHERE "key"="subBasePath";
 	INSERT INTO "settings" ("key", "value") VALUES ("webPort",  "${PORT}");
 	INSERT INTO "settings" ("key", "value") VALUES ("webCertFile",  "");
 	INSERT INTO "settings" ("key", "value") VALUES ("webKeyFile", "");
 	INSERT INTO "settings" ("key", "value") VALUES ("webBasePath", "/${RNDSTR}/");
+	INSERT INTO "settings" ("key", "value") VALUES ("subCertFile",  "/etc/letsencrypt/live/sub.${MainDomain}/fullchain.pem");
+	INSERT INTO "settings" ("key", "value") VALUES ("subKeyFile", "/etc/letsencrypt/live/sub.${MainDomain}/privkey.pem");
+	INSERT INTO "settings" ("key", "value") VALUES ("subBasePath", "/");
 EOF
 else
 	msg_err "x-ui.db file not exist! Maybe x-ui isn't installed." && exit 1;

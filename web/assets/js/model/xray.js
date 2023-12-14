@@ -1105,7 +1105,7 @@ class Inbound extends XrayCommonClass {
                 const ws = this.stream.ws;
                 params.set("path", ws.path);
                 const index = ws.headers.findIndex(header => header.name.toLowerCase() === 'host');
-                if (index >= 0) {
+                if (index > 0) {
                     const host = ws.headers[index].value;
                     params.set("host", host);
                 }
@@ -1203,7 +1203,7 @@ class Inbound extends XrayCommonClass {
                     const request = tcp.request;
                     params.set("path", request.path.join(','));
                     const index = request.headers.findIndex(header => header.name.toLowerCase() === 'host');
-                    if (index >= 0) {
+                    if (index > 0) {
                         const host = request.headers[index].value;
                         params.set("host", host);
                     }
@@ -1219,7 +1219,7 @@ class Inbound extends XrayCommonClass {
                 const ws = this.stream.ws;
                 params.set("path", ws.path);
                 const index = ws.headers.findIndex(header => header.name.toLowerCase() === 'host');
-                if (index >= 0) {
+                if (index > 0) {
                     const host = ws.headers[index].value;
                     params.set("host", host);
                 }
@@ -1284,7 +1284,7 @@ class Inbound extends XrayCommonClass {
                     const request = tcp.request;
                     params.set("path", request.path.join(','));
                     const index = request.headers.findIndex(header => header.name.toLowerCase() === 'host');
-                    if (index >= 0) {
+                    if (index > 0) {
                         const host = request.headers[index].value;
                         params.set("host", host);
                     }
@@ -1300,7 +1300,7 @@ class Inbound extends XrayCommonClass {
                 const ws = this.stream.ws;
                 params.set("path", ws.path);
                 const index = ws.headers.findIndex(header => header.name.toLowerCase() === 'host');
-                if (index >= 0) {
+                if (index > 0) {
                     const host = ws.headers[index].value;
                     params.set("host", host);
                 }

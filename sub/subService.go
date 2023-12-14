@@ -314,8 +314,6 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 			request := header["request"].(map[string]interface{})
 			requestPath, _ := request["path"].([]interface{})
 			params["path"] = requestPath[0].(string)
-			headers, _ := request["headers"].(map[string]interface{})
-			params["host"] = searchHost(headers)
 			params["headerType"] = "http"
 		}
 	case "kcp":
@@ -326,8 +324,6 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 	case "ws":
 		ws, _ := stream["wsSettings"].(map[string]interface{})
 		params["path"] = ws["path"].(string)
-		headers, _ := ws["headers"].(map[string]interface{})
-		params["host"] = searchHost(headers)
 		if inbound.Cdn == true {
 		  params["security"] = "tls"
 		  params["fp"] = "chrome"
@@ -337,7 +333,6 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 	case "http":
 		http, _ := stream["httpSettings"].(map[string]interface{})
 		params["path"] = http["path"].(string)
-		params["host"] = searchHost(http)
 		if inbound.Cdn == true {
 		  params["security"] = "tls"
 		  params["fp"] = "chrome"
@@ -518,8 +513,6 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 			request := header["request"].(map[string]interface{})
 			requestPath, _ := request["path"].([]interface{})
 			params["path"] = requestPath[0].(string)
-			headers, _ := request["headers"].(map[string]interface{})
-			params["host"] = searchHost(headers)
 			params["headerType"] = "http"
 		}
 	case "kcp":
@@ -530,8 +523,6 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 	case "ws":
 		ws, _ := stream["wsSettings"].(map[string]interface{})
 		params["path"] = ws["path"].(string)
-		headers, _ := ws["headers"].(map[string]interface{})
-		params["host"] = searchHost(headers)
 		if inbound.Cdn == true {
 		  params["security"] = "tls"
 		  params["fp"] = "chrome"
@@ -540,7 +531,6 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 	case "http":
 		http, _ := stream["httpSettings"].(map[string]interface{})
 		params["path"] = http["path"].(string)
-		params["host"] = searchHost(http)
 		if inbound.Cdn == true {
 		  params["security"] = "tls"
 		  params["fp"] = "chrome"
