@@ -58,6 +58,10 @@ elif [[ "${release}" == "debian" ]]; then
     fi
 fi
 
+# Declare Variables
+log_folder="${XUI_LOG_FOLDER:=/var/log}"
+iplimit_log_path="${log_folder}/exipl.log"
+iplimit_banned_log_path="${log_folder}/exipl-banned.log"
 confirm() {
     if [[ $# > 1 ]]; then
         echo && read -p "$1 [Default$2]: " temp
@@ -89,7 +93,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/main/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -108,7 +112,7 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/main/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/EarlVadim/ex-ui/main/install.sh)
     if [[ $? == 0 ]]; then
         LOGI "Update is complete, Panel has automatically restarted "
         exit 0
@@ -297,7 +301,7 @@ install_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/alireza0/x-ui/raw/main/x-ui.sh
+    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/EarlVadim/ex-ui/raw/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "Failed to download script，Please check whether the machine can connect Github"
@@ -617,7 +621,7 @@ echo -e "${green} ------------------------- "
 echo -e "${yellow} Advanced Geo System Updater Select Update Server "
 echo -e "${green}\t1.${plain} Github [Default] "
 echo -e "${green}\t2.${plain} jsDelivr CDN "
-echo -e "${green}\t0.${plain} Back To X-UI Menu "
+echo -e "${green}\t0.${plain} Back To EX-UI Menu "
 read -p "Select an option: " select
 
 case "$select" in
@@ -700,25 +704,25 @@ create_iplimit_jails() {
     # Use default bantime if not passed => 5 minutes
     local bantime="${1:-5}"
 
-    cat << EOF > /etc/fail2ban/jail.d/3x-ipl.conf
-[3x-ipl]
+    cat << EOF > /etc/fail2ban/jail.d/ex-ipl.conf
+[ex-ipl]
 enabled=true
-filter=3x-ipl
-action=3x-ipl
+filter=ex-ipl
+action=ex-ipl
 logpath=${iplimit_log_path}
 maxretry=4
 findtime=60
 bantime=${bantime}m
 EOF
 
-    cat << EOF > /etc/fail2ban/filter.d/3x-ipl.conf
+    cat << EOF > /etc/fail2ban/filter.d/ex-ipl.conf
 [Definition]
 datepattern = ^%%Y/%%m/%%d %%H:%%M:%%S
 failregex   = \[LIMIT_IP\]\s*Email\s*=\s*<F-USER>.+</F-USER>\s*\|\|\s*SRC\s*=\s*<ADDR>
 ignoreregex =
 EOF
 
-    cat << EOF > /etc/fail2ban/action.d/3x-ipl.conf
+    cat << EOF > /etc/fail2ban/action.d/ex-ipl.conf
 [INCLUDES]
 before = iptables-common.conf
 
@@ -752,10 +756,10 @@ iplimit_remove_conflicts() {
     )
 
     for file in "${jail_files[@]}"; do
-        # Check for [3x-ipl] config in jail file then remove it
-        if test -f "${file}" && grep -qw '3x-ipl' ${file}; then
-            sed -i "/\[3x-ipl\]/,/^$/d" ${file}
-            echo -e "${yellow}Removing conflicts of [3x-ipl] in jail (${file})!${plain}\n"
+        # Check for [ex-ipl] config in jail file then remove it
+        if test -f "${file}" && grep -qw 'ex-ipl' ${file}; then
+            sed -i "/\[ex-ipl\]/,/^$/d" ${file}
+            echo -e "${yellow}Removing conflicts of [ex-ipl] in jail (${file})!${plain}\n"
         fi
     done
 }
@@ -791,7 +795,7 @@ iplimit_main() {
         3)
             confirm "Proceed with Unbanning everyone from IP Limit jail?" "y"
             if [[ $? == 0 ]]; then
-                fail2ban-client reload --restart --unban 3x-ipl
+                fail2ban-client reload --restart --unban ex-ipl
                 echo -e "${green}All users Unbanned successfully.${plain}"
                 iplimit_main
             else
@@ -869,9 +873,9 @@ remove_iplimit(){
     read -p "Choose an option: " num
     case "$num" in
         1) 
-            rm -f /etc/fail2ban/filter.d/3x-ipl.conf
-            rm -f /etc/fail2ban/action.d/3x-ipl.conf
-            rm -f /etc/fail2ban/jail.d/3x-ipl.conf
+            rm -f /etc/fail2ban/filter.d/ex-ipl.conf
+            rm -f /etc/fail2ban/action.d/ex-ipl.conf
+            rm -f /etc/fail2ban/jail.d/ex-ipl.conf
             systemctl restart fail2ban
             echo -e "${green}IP Limit removed successfully!${plain}\n"
             before_show_menu ;;
