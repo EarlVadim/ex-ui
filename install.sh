@@ -58,8 +58,8 @@ done
 UNINSTALL_XUI(){
 	printf 'y\n' | x-ui uninstall
 	rm -rf "/etc/x-ui/" "/usr/local/x-ui/" "/usr/bin/x-ui/"
-	$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx haproxy
-	$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx haproxy
+	$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx
+	$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx
 	$Pak -y autoremove
 	$Pak -y autoclean
 	rm -rf "/var/www/html/" "/etc/nginx/" "/usr/share/nginx/" 
@@ -83,14 +83,12 @@ done
 ###############################Install Packages#############################
 if [[ ${INSTALL} == *"y"* ]]; then
 	$Pak -y update
-	$Pak -y install nginx-full certbot python3-certbot-nginx sqlite3 dnsutils haproxy
+	$Pak -y install nginx certbot python3-certbot-nginx sqlite3 dnsutils 
 	
-	systemctl enable --now haproxy
 	systemctl enable --now nginx
 fi
 #########################Install nginx Config###############################
 systemctl stop nginx 
-systemctl stop haproxy
 fuser -k 80/tcp 80/udp 443/tcp 443/udp 2>/dev/null
 if [[ ! -f "/etc/letsencrypt/live/${SubDomain}.${MainDomain}/privkey.pem" ]]; then
 	certbot certonly --standalone --non-interactive --force-renewal --agree-tos --register-unsafely-without-email --cert-name "$SubDomain.$MainDomain" -d "$domain"
@@ -114,9 +112,35 @@ fi
 
 cat > "/etc/nginx/sites-available/$MainDomain" << EOF
 server {
+    server_name bot.$MainDomain;
+    listen 443 ssl http2;
+	http2_push_preload on;
+	index index.php index.html index.htm;
+	root /var/www/html/;
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_certificate /etc/letsencrypt/live/bot.$MainDomain/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/bot.$MainDomain/privkey.pem;
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+	location ~* (?:\.(?:db|json|pub|pem|config|conf|inf|ini|inc|bak|sql|log|py|sh|passwd|pwd|cgi|lua)|~)$ { deny all; }
+	location ~* (`|"|'|0x00|%0A|%0D|%27|%22|%3C|%3E|%00|%60|%24&x|%0|%A|%B|%C|%D|%E|%F|127\.0) { deny all; }
+	location ~* "(&pws=0|_vti_|\(null\)|\{$itemURL\}|echo(.*)kae|etc/passwd|eval\(|self/environ)" { deny all; }
+	location ~ "(\|\.\.\.|\.\./|~|`|<|>|\|)" { deny all; }
+	location ~* [a-zA-Z0-9_]=(\.\.//?)+ { deny all; }
+	location ~* [a-zA-Z0-9_]=/([a-z0-9_.]//?)+ { deny all; }
+	
+	location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+		fastcgi_param DOCUMENT_ROOT $realpath_root;
+    }
+
+}
+server {
 	server_name ~^((?<subdomain>.*)\.)?(?<domain>[^.]+)\.(?<tld>[^.]+)\$;
-	listen 11443 ssl http2;
-	listen [::]:11443 ssl http2 ipv6only=on;
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2 ipv6only=on;
 	http2_push_preload on;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
@@ -167,67 +191,6 @@ server {
 }
 EOF
 
-cat > "/etc/haproxy/haproxy.cfg" << EOF
-global
-	log /dev/log	local0
-	log /dev/log	local1 notice
-	chroot /var/lib/haproxy
-	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-	stats timeout 30s
-	user haproxy
-	group haproxy
-	daemon
-	ca-base /etc/ssl/certs
-	crt-base /etc/ssl/private
-    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
-    ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
-    ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
-
-defaults
-	log	global
-	mode	http
-	option	httplog
-	option	dontlognull
-        timeout connect 5000
-        timeout client  50000
-        timeout server  50000
-	errorfile 400 /etc/haproxy/errors/400.http
-	errorfile 403 /etc/haproxy/errors/403.http
-	errorfile 408 /etc/haproxy/errors/408.http
-	errorfile 500 /etc/haproxy/errors/500.http
-	errorfile 502 /etc/haproxy/errors/502.http
-	errorfile 503 /etc/haproxy/errors/503.http
-	errorfile 504 /etc/haproxy/errors/504.http
-
-listen front
- mode tcp
- bind ipv4@*:443
-
- tcp-request inspect-delay 5s
- tcp-request content accept if { req.ssl_hello_type 1 }
-
- use_backend CDN if { req.ssl_sni -m end $SubDomain.$MainDomain }
- use_backend REALITY_TROJAN if { req.ssl_sni -m end trojan.$MainDomain }
- use_backend REALITY_VLESS if { req.ssl_sni -m end vless.$MainDomain }
- use_backend SUBS if { req.ssl_sni -m end sub.$MainDomain }
-
-
-backend CDN
- mode tcp
- server srv1 127.0.0.1:11443
- 
-backend REALITY_VLESS
- mode tcp
- server srv1 127.0.0.1:22443 
- 
-backend REALITY_TROJAN
- mode tcp
- server srv1 127.0.0.1:23443
- 
-backend SUBS
- mode tcp
- server srv1 127.0.0.1:2096
-EOF
 ###################################Enable Site###############################
 if [[ -f "/etc/nginx/sites-available/$MainDomain" ]]; then
 	unlink /etc/nginx/sites-enabled/default 2>/dev/null
@@ -236,7 +199,6 @@ if [[ -f "/etc/nginx/sites-available/$MainDomain" ]]; then
 else
 	msg_err "$MainDomain nginx config not exist!" && exit 1
 fi
-systemctl start haproxy
 ###################################Update Db##################################
 UPDATE_XUIDB(){
 if [[ -f $XUIDB ]]; then

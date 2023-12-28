@@ -110,6 +110,21 @@
                 </a-form-item>
             </td>
         </tr>
+		<tr>
+            <td>User
+                <a-tooltip>
+                    <template slot="title">
+                        <span>{{ i18n "pages.xray.rules.useComma" }}</span>
+                    </template>
+                    <a-icon type="question-circle"></a-icon>
+                </a-tooltip>
+            </td>
+            <td>
+                <a-form-item>
+                    <a-input v-model.trim="ruleModal.rule.user" style="width: 250px"></a-input>
+                </a-form-item>
+            </td>
+        </tr>
         <tr>
             <td>Port
                 <a-tooltip>

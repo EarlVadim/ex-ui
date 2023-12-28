@@ -484,7 +484,7 @@
                                     :columns="isMobile ? innerMobileColumns : innerColumns"
                                     :data-source="getInboundClients(record)"
                                     :pagination=pagination(getInboundClients(record))
-                                    :style="isMobile ? 'margin: -16px -5px -17px;' : 'margin-left: 10px;'">
+                                    style="margin: -12px -6px -13px;">
                                     {{template "client_table"}}
                                 </a-table>
                             </template>
@@ -1224,7 +1224,7 @@
                     title: '{{ i18n "pages.inbounds.delDepletedClientsTitle"}}',
                     content: '{{ i18n "pages.inbounds.delDepletedClientsContent"}}',
                     class: themeSwitcher.currentTheme,
-                    okText: '{{ i18n "reset"}}',
+                    okText: '{{ i18n "delete"}}',
                     cancelText: '{{ i18n "cancel"}}',
                     onOk: () => this.submit('/xui/inbound/delDepletedClients/' + dbInboundId),
                 })

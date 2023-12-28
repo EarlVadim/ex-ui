@@ -75,6 +75,14 @@
                                     <a-button type="primary" :disabled="saveBtnDisable" @click="updateXraySetting">{{ i18n "pages.xray.save" }}</a-button>
                                     <a-button type="danger" :disabled="!saveBtnDisable" @click="restartXray">{{ i18n "pages.xray.restart" }}</a-button>
                                 </a-space>
+								<a-popover v-if="restartResult"
+                                        :overlay-class-name="themeSwitcher.currentTheme">
+                                        <span slot="title" style="font-size: 12pt">Error in running xray-core</span>
+                                        <template slot="content">
+                                            <p style="max-width: 400px" v-for="line in restartResult.split('\n')">[[ line ]]</p>
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled"></a-icon>
+                                </a-popover>
                             </a-col>
                             <a-col :xs="24" :sm="16">
                                 <template>
@@ -463,6 +471,7 @@
             xraySetting: '',
             inboundTags: [],
             saveBtnDisable: true,
+			restartResult: '',
             showAlert: false,
             isMobile: window.innerWidth <= 768,
             advSettings: 'xraySetting',
@@ -575,7 +584,18 @@
             async restartXray() {
                 this.loading(true);
                 const msg = await HttpUtil.post("server/restartXrayService");
+				if (msg.success) {
+                    await PromiseUtil.sleep(500);
+                    await this.getXrayResult();
+                }
                 this.loading(false);
+            },
+			async getXrayResult() {
+                const msg = await HttpUtil.get("/xui/xray/getXrayResult");
+                    if(msg.success){
+                        this.restartResult=msg.obj;
+                        if(msg.obj.length > 1) Vue.prototype.$message.error(msg.obj);
+                    }
             },
             async resetXrayConfigToDefault() {
                 this.loading(true);
@@ -846,6 +866,7 @@
                 this.showAlert = true;
             }
             await this.getXraySetting();
+			await this.getXrayResult();
             while (true) {
                 await PromiseUtil.sleep(1000);
                 this.saveBtnDisable = this.oldXraySetting === this.xraySetting;
